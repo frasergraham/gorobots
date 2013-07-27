@@ -1,0 +1,43 @@
+{
+    "robot_name": "JimmyJohn",
+    "robot_stats":{
+        "speed": 12,
+        "hp": 100,
+        "weapon_strength": 10,
+        "weapon radius": 5
+    },
+    "health": 55,
+    "position":{
+        "x": 100,
+        "y": 300
+    },
+    "move_to": {
+        "x": 120,
+        "y": 120
+    },
+    "sensors":[
+        {
+            "type": "robot",
+            "position":{
+                "x": 12,
+                "y": 104
+            },
+            "type": "robot",
+            "position":{
+                "x": 200,
+                "y": 4
+            },
+            "type": "projectile",
+            "position":{
+                "x": 120,
+                "y": 14
+            },
+
+        }
+    ]
+
+
+
+
+
+}
