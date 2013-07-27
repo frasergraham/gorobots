@@ -67,7 +67,6 @@ func move(d1, d2 position, velocity float64, timeDelta float64) position {
 }
 
 func (p *player) nudge() {
-	fmt.Println()
 	newPos := move(p.Robot.Position, p.Robot.MoveTo, *velocity, *delta)
 	p.Robot.Position.X = newPos.X
 	p.Robot.Position.Y = newPos.Y
