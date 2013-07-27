@@ -14,7 +14,7 @@ type game struct {
 }
 
 type handshake struct {
-    ID string `json:"id"`
+	ID string `json:"id"`
 }
 
 var g = game{
@@ -45,8 +45,8 @@ func (g *game) run() {
 
 			robots := []robot{}
 			for p := range g.players {
-				p.Robot.Position.X = p.Instruction.MoveTo.X
-				p.Robot.Position.Y = p.Instruction.MoveTo.Y
+				p.Robot.Position = p.Instruction.MoveTo
+				p.Robot.MoveTo = p.Instruction.MoveTo
 				robots = append(robots, p.Robot)
 			}
 

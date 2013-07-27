@@ -39,6 +39,7 @@ func (p *player) recv() {
 			log.Print(err)
 			break
 		}
+		p.Instruction = msg
 	}
 	p.ws.Close()
 }

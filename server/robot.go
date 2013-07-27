@@ -20,5 +20,5 @@ type robot struct {
 	Stats    stats    `json:"stats"`
 	Health   float64  `json:"health"`
 	Position position `json:"position"`
-	Moveto   position `json:"move_to"`
+	MoveTo   position `json:"move_to"`
 }
