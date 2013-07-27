@@ -7,10 +7,11 @@ import (
 )
 
 type game struct {
-	players    map[*player]bool
-	register   chan *player
-	unregister chan *player
-	id         chan int
+	players     map[*player]bool
+	projectiles map[*projectile]bool
+	register    chan *player
+	unregister  chan *player
+	id          chan int
 }
 
 type handshake struct {
@@ -18,9 +19,10 @@ type handshake struct {
 }
 
 var g = game{
-	register:   make(chan *player),
-	unregister: make(chan *player),
-	players:    make(map[*player]bool),
+	register:    make(chan *player),
+	unregister:  make(chan *player),
+	projectiles: make(map[*projectile]bool),
+	players:     make(map[*player]bool),
 }
 
 type robotSorter struct {
@@ -56,15 +58,24 @@ func (g *game) run() {
 			delete(g.players, p)
 			close(p.send)
 		case <-time.Tick(time.Duration(*tick) * time.Millisecond):
-			robots := []robot{}
+			payload := payload{}
+			payload.Robots = []robot{}
+			payload.Projectiles = []projectile{}
 			for p := range g.players {
 				p.nudge()
-				robots = append(robots, p.Robot)
+				if p.Robot.FireAt.X != 0 && p.Robot.FireAt.Y != 0 {
+					p.fire()
+				}
+				payload.Robots = append(payload.Robots, p.Robot)
 			}
-			sort.Sort(robotSorter{robots})
+			for p := range g.projectiles {
+				p.nudge()
+				payload.Projectiles = append(payload.Projectiles, *p)
+			}
+			sort.Sort(robotSorter{payload.Robots})
 
 			for p := range g.players {
-				p.send <- &robots
+				p.send <- &payload
 			}
 		}
 	}

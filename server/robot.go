@@ -18,7 +18,15 @@ type stats struct {
 type robot struct {
 	Id       string   `json:"id"`
 	Stats    stats    `json:"stats"`
-	Health   float64  `json:"health"`
+	Health   int      `json:"health"`
 	Position position `json:"position"`
 	MoveTo   position `json:"move_to"`
+	FireAt   position `json:"fire_at"`
+}
+
+type projectile struct {
+	Id       string   `json:"id"`
+	Position position `json:"position"`
+	MoveTo   position `json:"move_to"`
+	Damage   int      `json:"damage"`
 }

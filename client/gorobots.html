@@ -4,14 +4,17 @@
     <head>
         <style type="text/css">
             canvas { border: 1px solid black; }
+            body { font-family: Helvetica, Sans-Serif; }
         </style>
         <script type="text/javascript" src="gorobots.js"></script>
     </head>
     <body>
   </head>
   <body onload="init();">
+    <h3>GOBOTS</h3>
+
     <canvas id="tutorial" width="800" height="350"></canvas>
-    <textarea cols=50 rows=26 id="robot">function robot(data, map){
+    <textarea cols=70 rows=26 id="robot">function robot(data, map){
 
         //console.log(data, map);
         var instructions = {};
@@ -26,6 +29,7 @@
                 y = Math.floor(Math.random() * map['height']);
                 console.log("X: " + x + ", Y: " + y);
                 instructions['move_to'] = {"x": x, "y": y};
+                instructions['fire_at'] = {"x": 100, "y": 100};
             }
             else{
                 instructions['move_to'] = {"x": x, "y": y};
@@ -37,14 +41,14 @@
             instructions['move_to'] = {"x": x, "y": y};
         }
 
+
         return instructions;
     }
 
 
-
     </textarea>
-    <a href="#" onclick="eval_robot();">Run</a>
-    <div id="players"></div>
+    <a href="#" onclick="eval_robot();">Check Code</a>
+    <pre id="players"></pre>
     <div id="output"></div>
 
   </body>

@@ -7,10 +7,15 @@ import (
 	"math"
 )
 
+type payload struct {
+	Robots      []robot      `json:"robots"`
+	Projectiles []projectile `json:"projectiles"`
+}
+
 type player struct {
 	ws          *websocket.Conn
 	Robot       robot
-	send        chan *[]robot
+	send        chan *payload
 	Instruction instruction
 }
 
@@ -20,8 +25,9 @@ type instruction struct {
 }
 
 func (p *player) sender() {
-	for robots := range p.send {
-		err := websocket.JSON.Send(p.ws, *robots)
+	for things := range p.send {
+
+		err := websocket.JSON.Send(p.ws, *things)
 		if err != nil {
 			break
 		}
@@ -38,6 +44,7 @@ func (p *player) recv() {
 			break
 		}
 		p.Robot.MoveTo = msg.MoveTo
+		p.Robot.FireAt = msg.FireAt
 	}
 	p.ws.Close()
 }
@@ -64,4 +71,50 @@ func (p *player) nudge() {
 	newPos := move(p.Robot.Position, p.Robot.MoveTo, *velocity, *delta)
 	p.Robot.Position.X = newPos.X
 	p.Robot.Position.Y = newPos.Y
+}
+
+func (p *projectile) nudge() {
+	switch {
+	case p.Position.X < p.MoveTo.X:
+		p.Position.X += 5
+	case p.Position.X > p.MoveTo.X:
+		p.Position.X -= 5
+	}
+	switch {
+	case p.Position.Y < p.MoveTo.Y:
+		p.Position.Y += 5
+	case p.Position.Y > p.MoveTo.Y:
+		p.Position.Y -= 5
+	}
+
+	if p.Position.Y-p.MoveTo.Y < 5 && p.Position.X-p.MoveTo.X < 5 {
+		delete(g.projectiles, p)
+
+		for player := range g.players {
+			if player.Robot.Position.X-p.Position.X < 20 &&
+				player.Robot.Position.Y-p.Position.Y < 20 {
+				player.Robot.Health -= p.Damage
+				log.Printf("Robot %+v is injured", player.Robot)
+			}
+		}
+
+	}
+
+}
+
+func (p *player) fire() {
+
+	for proj := range g.projectiles {
+		if proj.Id == p.Robot.Id {
+			return
+		}
+	}
+
+	proj := &projectile{
+		Id:       p.Robot.Id,
+		Position: p.Robot.Position,
+		MoveTo:   p.Robot.FireAt,
+		Damage:   10,
+	}
+	g.projectiles[proj] = true
 }
