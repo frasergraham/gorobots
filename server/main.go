@@ -5,16 +5,13 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
-	"time"
 )
 
 var addr = flag.String("addr", ":8666", "http service address")
 
 func main() {
 	flag.Parse()
-	rand.Seed(time.Now().UnixNano())
 
 	http.Handle("/ws/", websocket.Handler(addPlayer))
 
@@ -31,7 +28,7 @@ func addPlayer(ws *websocket.Conn) {
 	log.Printf("adding robot: %s", name)
 	p := &player{
 		robot: robot{Name: name},
-		send:  make(chan *[]robot, 256),
+		send:  make(chan *[]robot),
 		ws:    ws,
 	}
 	g.register <- p
@@ -40,5 +37,5 @@ func addPlayer(ws *websocket.Conn) {
 	}()
 	go p.sender()
 	p.recv()
-	fmt.Printf("%v has been disconnect from this game\n", p)
+	log.Printf("%v has been disconnect from this game\n", p.robot.Name)
 }

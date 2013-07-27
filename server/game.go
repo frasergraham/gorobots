@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"time"
 )
 
@@ -30,20 +29,20 @@ func (g *game) run() {
 
 	for {
 		select {
-		case c := <-g.register:
-			log.Printf("adding player: %+v", c)
-			g.players[c] = true
-		case c := <-g.unregister:
-			delete(g.players, c)
-			close(c.send)
-		case <-time.Tick(2 * time.Second):
+		case p := <-g.register:
+			log.Printf("adding player: %+v", p.robot.Name)
+			g.players[p] = true
+		case p := <-g.unregister:
+			delete(g.players, p)
+			close(p.send)
+		case <-time.Tick(10 * time.Second):
 			fmt.Printf("\n\n\n")
-			log.Printf("timing out, time to calculate state")
+			log.Printf("calculating state")
 
 			robots := []robot{}
 			for p := range g.players {
-				p.robot.Position.X = rand.Intn(300)
-				p.robot.Position.Y = rand.Intn(300)
+				p.robot.Position.X = p.instruction.MoveTo.X
+				p.robot.Position.Y = p.instruction.MoveTo.Y
 				robots = append(robots, p.robot)
 			}
 
