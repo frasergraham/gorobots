@@ -10,19 +10,20 @@
     <body>
   </head>
   <body onload="init();">
-    <canvas id="tutorial" width="450" height="350"></canvas>
-    <textarea cols=50 rows=26 id="robot">function robot(data){
-        //console.log(data);
+    <canvas id="tutorial" width="800" height="350"></canvas>
+    <textarea cols=50 rows=26 id="robot">function robot(data, map){
+
+        //console.log(data, map);
         var instructions = {};
         var x,y;
         if (data && 'move_to' in data){
             x = data['move_to']['x'];
             y = data['move_to']['y'];
 
-            if (data['position']['x'] == data['move_to']['x'] &&
-                data['position']['y'] == data['move_to']['y']){
-                x = Math.floor(Math.random() * 450);
-                y = Math.floor(Math.random() * 400);
+            if (Math.abs(data['position']['x'] - data['move_to']['x']) < 3 &&
+                Math.abs(data['position']['y'] - data['move_to']['y']) < 3){
+                x = Math.floor(Math.random() * map['width']);
+                y = Math.floor(Math.random() * map['height']);
                 console.log("X: " + x + ", Y: " + y);
                 instructions['move_to'] = {"x": x, "y": y};
             }
@@ -31,8 +32,8 @@
             }
         }
         else{
-            x = Math.floor(Math.random() * 450);
-            y = Math.floor(Math.random() * 400);
+            x = Math.floor(Math.random() * map['width']);
+            y = Math.floor(Math.random() * map['height']);
             instructions['move_to'] = {"x": x, "y": y};
         }
 
@@ -43,6 +44,7 @@
 
     </textarea>
     <a href="#" onclick="eval_robot();">Run</a>
+    <div id="players"></div>
     <div id="output"></div>
 
   </body>

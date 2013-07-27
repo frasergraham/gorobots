@@ -23,7 +23,7 @@ var establish_connection = function (update_callback, draw_callback){
     };
 
     connection.onmessage = function (e) {
-        console.log(e.data);
+        // console.log(e.data);
         new_data = JSON.parse(e.data);
 
         if ('id' in new_data){
@@ -31,7 +31,10 @@ var establish_connection = function (update_callback, draw_callback){
             console.log("Got ID: " + id);
         }
 
+        var players = "";
+
         for (var i=0; i < new_data.length; i++){
+            players += "&nbsp" + new_data[i]['id'];
             // console.log(new_data[i]);
             if ("position" in new_data[i]){
                draw_callback(new_data[i], i);
@@ -39,6 +42,8 @@ var establish_connection = function (update_callback, draw_callback){
             if (new_data[i]['id'] == id)
                 update_callback(new_data[i], i);
         }
+        var players_div = document.getElementById("players");
+        players_div.innerHTML = players;
     };
 
     return connection;
@@ -59,7 +64,7 @@ var colors = [
 
 // This is going to be the main module
 var gorobots = function(my){
-    my.width = 450;
+    my.width = 800;
     my.height = 400;
 
     return my;
@@ -76,15 +81,19 @@ var draw = function(data, index){
         var y = data['position']['y'];
 
         if (index === 0)
-            ctx.clearRect ( 0 , 0 , 450 , 350 );
+            ctx.clearRect ( 0 , 0 , 800 , 350 );
 
         ctx.fillStyle = colors[index];
         ctx.fillRect (x, y, 10, 10);
 
-        // ctx.fillStyle = "blue";
-        // ctx.font = "bold 16px Arial";
-        // ctx.fillText(data['id'], x, y);
+        if (id == data['id'])
+            ctx.font="bold 22px Helvetica";
+        else
+            ctx.font="10px Helvetica";
 
+        ctx.fillText(
+            data['id'] + "[" + data['health'] + "]",
+            x+12,y+10);
     }
 };
 
@@ -111,13 +120,14 @@ var eval_robot = function(data){
     var output = document.getElementById('output');
     var code = "( " + robot_code.value + " )";
     var rc = evalInput(code, output);
-    var out = rc.call(this, data);
+    var map = {"width": 800, "height": 350};
+    var out = rc.call(this, data, map);
 
     out['id'] = id;
 
     if (websocket){
         websocket.send(JSON.stringify(out));
-        console.log("SENDING: " + JSON.stringify(out));
+        //console.log("SENDING: " + JSON.stringify(out));
     }
 };
 
