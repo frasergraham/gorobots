@@ -32,14 +32,27 @@ func (p *player) sender() {
 func (p *player) recv() {
 	for {
 		var msg instruction
-		log.Printf("recv: %s waiting for a recv", p.Robot.Id)
 		err := websocket.JSON.Receive(p.ws, &msg)
-		log.Printf("recv: %s: %+v\n", p.Robot.Id, msg)
 		if err != nil {
 			log.Print(err)
 			break
 		}
-		p.Instruction = msg
+		p.Robot.MoveTo = msg.MoveTo
 	}
 	p.ws.Close()
+}
+
+func (p *player) nudge() {
+	switch {
+	case p.Robot.Position.X < p.Robot.MoveTo.X:
+		p.Robot.Position.X += 1
+	case p.Robot.Position.X > p.Robot.MoveTo.X:
+		p.Robot.Position.X -= 1
+	}
+	switch {
+	case p.Robot.Position.Y < p.Robot.MoveTo.Y:
+		p.Robot.Position.Y += 1
+	case p.Robot.Position.Y > p.Robot.MoveTo.Y:
+		p.Robot.Position.Y -= 1
+	}
 }
