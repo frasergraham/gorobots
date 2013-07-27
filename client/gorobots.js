@@ -15,16 +15,16 @@ var establish_connection = function (update_callback, draw_callback){
     connection.onclose = function(){
         console.log("Lost Connection: " + websocket_server);
         setTimeout(function(){
-            // console.log("Trying");
             establish_connection(update_callback, draw_callback);
         }, 5000);
     };
 
     connection.onmessage = function (e) {
-        console.log(e.data);
-        new_data = [JSON.parse(e.data)];
+        // console.log(e.data);
+        new_data = JSON.parse(e.data);
 
         for (var i=0; i < new_data.length; i++){
+            // console.log(new_data[i]);
             update_callback(new_data[i], i);
             draw_callback(new_data[i], i);
         }
