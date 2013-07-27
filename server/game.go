@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"sort"
 	"time"
 )
 
@@ -22,6 +23,22 @@ var g = game{
 	players:    make(map[*player]bool),
 }
 
+type robotSorter struct {
+	robots []robot
+}
+
+func (s robotSorter) Len() int {
+	return len(s.robots)
+}
+
+func (s robotSorter) Swap(i, j int) {
+	s.robots[i], s.robots[j] = s.robots[j], s.robots[i]
+}
+
+func (s robotSorter) Less(i, j int) bool {
+	return s.robots[i].Id < s.robots[j].Id
+}
+
 func (g *game) run() {
 	g.id = make(chan int)
 	go func() {
@@ -39,14 +56,12 @@ func (g *game) run() {
 			delete(g.players, p)
 			close(p.send)
 		case <-time.Tick(10 * time.Millisecond):
-			// fmt.Printf("\n\n\n")
-			// log.Printf("calculating state")
-
 			robots := []robot{}
 			for p := range g.players {
 				p.nudge()
 				robots = append(robots, p.Robot)
 			}
+			sort.Sort(robotSorter{robots})
 
 			for p := range g.players {
 				p.send <- &robots
