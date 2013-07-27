@@ -2,7 +2,6 @@ package main
 
 import (
 	"code.google.com/p/go.net/websocket"
-	"fmt"
 	"log"
 	"math"
 )
@@ -73,18 +72,7 @@ func (p *player) nudge() {
 }
 
 func (p *projectile) nudge() {
-	switch {
-	case p.Position.X < p.MoveTo.X:
-		p.Position.X += 5
-	case p.Position.X > p.MoveTo.X:
-		p.Position.X -= 5
-	}
-	switch {
-	case p.Position.Y < p.MoveTo.Y:
-		p.Position.Y += 5
-	case p.Position.Y > p.MoveTo.Y:
-		p.Position.Y -= 5
-	}
+	newPos := move(p.Position, p.MoveTo, *velocity*5, *delta)
 
 	if p.Position.Y-p.MoveTo.Y < 5 && p.Position.X-p.MoveTo.X < 5 {
 		delete(g.projectiles, p)
@@ -96,9 +84,9 @@ func (p *projectile) nudge() {
 				log.Printf("Robot %+v is injured", player.Robot)
 			}
 		}
-
 	}
-
+	p.Position.X = newPos.X
+	p.Position.Y = newPos.Y
 }
 
 func (p *player) fire() {
