@@ -17,27 +17,25 @@
     },
     "sensors":[
         {
-            "type": "robot",
-            "position":{
-                "x": 12,
-                "y": 104
-            },
-            "type": "robot",
-            "position":{
-                "x": 200,
-                "y": 4
-            },
-            "type": "projectile",
-            "position":{
-                "x": 120,
-                "y": 14
-            },
-
+        "type": "robot",
+        "position":{
+            "x": 12,
+            "y": 104
+            }
+        },
+        {
+        "type": "robot",
+        "position":{
+            "x": 200,
+            "y": 4
+            }
+        },
+        {
+        "type": "projectile",
+        "position":{
+            "x": 120,
+            "y": 14
+            }
         }
     ]
-
-
-
-
-
 }
