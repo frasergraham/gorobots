@@ -1,3 +1,4 @@
+var id = null;
 
 var establish_connection = function (update_callback, draw_callback){
 
@@ -10,23 +11,33 @@ var establish_connection = function (update_callback, draw_callback){
 
     connection.onopen = function(){
         console.log("Connected to " + websocket_server);
+        connection.send(JSON.stringify({'move_to':{"x": 0, "y":0}}));
     };
 
     connection.onclose = function(){
         console.log("Lost Connection: " + websocket_server);
+        id = null;
         setTimeout(function(){
-            establish_connection(update_callback, draw_callback);
+            websocket = establish_connection(update_callback, draw_callback);
         }, 5000);
     };
 
     connection.onmessage = function (e) {
-        // console.log(e.data);
+        console.log(e.data);
         new_data = JSON.parse(e.data);
+
+        if ('id' in new_data){
+            id = new_data['id'];
+            console.log("Got ID: " + id);
+        }
 
         for (var i=0; i < new_data.length; i++){
             // console.log(new_data[i]);
-            update_callback(new_data[i], i);
-            draw_callback(new_data[i], i);
+            if ("position" in new_data[i]){
+               draw_callback(new_data[i], i);
+            }
+            if (new_data[i]['id'] == id)
+                update_callback(new_data[i], i);
         }
     };
 
@@ -46,7 +57,16 @@ var colors = [
     "rgba(200, 200, 0, 0.5)"
 ];
 
-var d = function(data, index){
+// This is going to be the main module
+var gorobots = function(my){
+    my.width = 450;
+    my.height = 400;
+
+    return my;
+}({});
+
+
+var draw = function(data, index){
 
     var canvas = document.getElementById('tutorial');
 
@@ -60,6 +80,10 @@ var d = function(data, index){
 
         ctx.fillStyle = colors[index];
         ctx.fillRect (x, y, 10, 10);
+
+        // ctx.fillStyle = "blue";
+        // ctx.font = "bold 16px Arial";
+        // ctx.fillText(data['id'], x, y);
 
     }
 };
@@ -89,14 +113,16 @@ var eval_robot = function(data){
     var rc = evalInput(code, output);
     var out = rc.call(this, data);
 
+    out['id'] = id;
+
     if (websocket){
-        // console.log(out);
         websocket.send(JSON.stringify(out));
+        console.log("SENDING: " + JSON.stringify(out));
     }
 };
 
 
 function init(){
-    websocket = establish_connection(eval_robot, d);
+    websocket = establish_connection(eval_robot, draw);
 }
 
