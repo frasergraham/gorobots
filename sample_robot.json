@@ -1,4 +1,5 @@
 {
+    "type": "robot",
     "robot_name": "JimmyJohn",
     "robot_stats":{
         "speed": 12,
