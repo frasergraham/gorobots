@@ -7,33 +7,37 @@
         </style>
         <script type="text/javascript" src="gorobots.js"></script>
         <script type="text/javascript">
-            var d = function(data){
+            var websocket;
+
+            var colors = [
+                "rgba(0, 0, 200, 0.5)",
+                "rgba(0, 200, 0, 0.5)",
+                "rgba(200, 0, 0, 0.5)",
+                "rgba(0, 200, 200, 0.5)",
+                "rgba(200, 0, 200, 0.5)",
+                "rgba(200, 200, 0, 0.5)",
+            ]
+
+            var d = function(data, index){
 
                 var canvas = document.getElementById('tutorial');
 
                 if (canvas.getContext){
                     var ctx = canvas.getContext('2d');
-
-                    // ctx.fillStyle = "rgb(200,0,0)";
-                    // ctx.fillRect (10, 10, 55, 50);
-
                     var x = data['position']['x'];
                     var y = data['position']['y'];
-                    // console.log(data);
 
                     ctx.clearRect ( 0 , 0 , 450 , 350 );
 
-                    ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
+                    ctx.fillStyle = colors[index];
                     ctx.fillRect (x, y, 10, 10);
 
                 }
             };
 
-            function evalInput( input, output )
-            {
+            function evalInput( input, output ){
                 var theResult, evalSucceeded;
                 try{
-                    // TODO: Create an iframe for a blank slate context to evaluate within.
                     theResult = eval( input );
                     evalSucceeded = true;
                 }
@@ -42,32 +46,29 @@
                 }
                 if ( evalSucceeded )
                 {
-                    output.innerHTML = (theResult+"").replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( />/g, '&gt;' ).replace( /\r\n|\r|\n/g, '<br>' );
+                    // output.innerHTML = (theResult+"").replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( />/g, '&gt;' ).replace( /\r\n|\r|\n/g, '<br>' );
                 }
 
                 return theResult;
             }
 
 
-            var eval_robot = function(){
-                var stuff = "hello";
+            var eval_robot = function(data){
                 var robot_code = document.getElementById('robot');
                 var output = document.getElementById('output');
                 var code = "( " + robot_code.value + " )";
                 var rc = evalInput(code, output);
-                rc.call(this, stuff);
+                var out = rc.call(this, data);
+
+                if (websocket){
+                    // console.log(out);
+                    websocket.send(JSON.stringify(out));
+                }
             };
 
 
             function init(){
-                data = {
-                    "position":{
-                        "x": 20,
-                        "y":20
-                    }
-                }
-                d(data);
-                establish_connection(d);
+                websocket = establish_connection(eval_robot, d);
             }
 
     </script>
@@ -76,10 +77,14 @@
   </head>
   <body onload="init();">
     <canvas id="tutorial" width="450" height="350"></canvas>
-    <textarea cols=50 rows=26 id="robot">function robot(data){
-        var my_turn = {};
-        console.log(data);
-        return my_turn;
+    <textarea cols=50 rows=26 id="robot">function (data){
+        // console.log(data);
+
+        var instructions = {
+            "move_to": {"x": 0, "y": 0},
+            "fire_at": {"x": 100, "y": 100}};
+
+        return instructions;
     }
     </textarea>
     <a href="#" onclick="eval_robot();">Run</a>

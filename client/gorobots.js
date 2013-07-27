@@ -1,5 +1,5 @@
 
-var establish_connection = function (callback){
+var establish_connection = function (update_callback, draw_callback){
 
     var websocket_server = "ws://midna.local:8666/ws/";
     connection = new WebSocket(websocket_server, null);
@@ -16,16 +16,21 @@ var establish_connection = function (callback){
         console.log("Lost Connection: " + websocket_server);
         setTimeout(function(){
             // console.log("Trying");
-            establish_connection(callback);
+            establish_connection(update_callback, draw_callback);
         }, 5000);
     };
 
     connection.onmessage = function (e) {
-        new_data = JSON.parse(e.data);
-        // console.log(new_data);
+        console.log(e.data);
+        new_data = [JSON.parse(e.data)];
 
-        callback(new_data);
+        for (var i=0; i < new_data.length; i++){
+            update_callback(new_data[i], i);
+            draw_callback(new_data[i], i);
+        }
     };
+
+    return connection;
 
 };
 
