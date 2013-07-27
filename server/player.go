@@ -40,6 +40,14 @@ func (p *player) recv() {
 	p.ws.Close()
 }
 
+func move(d1, d2 position, velocity float64, timeDelta float64) position {
+    deltaX := float64(d2.X - d1.X) / velocity * timeDelta
+	deltaY := float64(d2.Y - d1.Y) / velocity * timeDelta
+	return position{
+        int(deltaX), int(deltaY),
+    }
+}
+
 func (p *player) nudge() {
 	switch {
 	case p.Robot.Position.X < p.Robot.MoveTo.X:
