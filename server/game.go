@@ -38,7 +38,7 @@ func (g *game) run() {
 		case p := <-g.unregister:
 			delete(g.players, p)
 			close(p.send)
-		case <-time.Tick(1 * time.Second):
+		case <-time.Tick(10 * time.Millisecond):
 			// fmt.Printf("\n\n\n")
 			// log.Printf("calculating state")
 
