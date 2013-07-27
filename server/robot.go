@@ -1,8 +1,8 @@
 package main
 
 type position struct {
-    X int `json:"x"`
-    Y int `json:"y"`
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 
 type weapon struct {
@@ -10,11 +10,13 @@ type weapon struct {
 	Radius   float64 `json:"radius"`
 }
 
-type stats struct { Speed float64 `json:"speed"`
+type stats struct {
+	Speed float64 `json:"speed"`
 	HP    int     `json:"hp"`
 }
 
 type robot struct {
+	Name        string   `json:"name"`
 	Stats       stats    `json:"stats"`
 	Health      float64  `json:"health"`
 	Position    position `json:"position"`
