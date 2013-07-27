@@ -6,11 +6,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+    "math/rand"
+    "time"
 )
 
 var addr = flag.String("addr", ":8666", "http service address")
 
 func main() {
+    rand.Seed(time.Now().UnixNano())
 	flag.Parse()
 
 	http.Handle("/ws/", websocket.Handler(addPlayer))
@@ -24,10 +27,14 @@ func main() {
 }
 
 func addPlayer(ws *websocket.Conn) {
-	name := fmt.Sprintf("robot%d", <-g.id)
-	log.Printf("adding robot: %s", name)
+	id := fmt.Sprintf("robot%d", <-g.id)
+	log.Printf("sending robot id: %s", id)
+    err := websocket.JSON.Send(ws, handshake{id})
+    if err != nil {
+        log.Fatal(err)
+    }
 	p := &player{
-		robot: robot{Name: name},
+		Robot: robot{Id: id},
 		send:  make(chan *[]robot),
 		ws:    ws,
 	}
@@ -37,5 +44,5 @@ func addPlayer(ws *websocket.Conn) {
 	}()
 	go p.sender()
 	p.recv()
-	log.Printf("%v has been disconnect from this game\n", p.robot.Name)
+	log.Printf("%v has been disconnect from this game\n", p.Robot.Id)
 }

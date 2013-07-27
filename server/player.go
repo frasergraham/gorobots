@@ -7,9 +7,9 @@ import (
 
 type player struct {
 	ws          *websocket.Conn
-	robot       robot
+	Robot       robot
 	send        chan *[]robot
-	instruction instruction
+	Instruction instruction
 }
 
 type instruction struct {
@@ -19,12 +19,12 @@ type instruction struct {
 
 func (p *player) sender() {
 	for robots := range p.send {
-		log.Printf("%s sending %d robots", p.robot.Name, len(*robots))
+		log.Printf("%s sending %d robots", p.Robot.Id, len(*robots))
 		err := websocket.JSON.Send(p.ws, *robots)
 		if err != nil {
 			break
 		}
-		log.Printf("%s: state sent", p.robot.Name)
+		log.Printf("%s: state sent", p.Robot.Id)
 	}
 	p.ws.Close()
 }
@@ -32,14 +32,13 @@ func (p *player) sender() {
 func (p *player) recv() {
 	for {
 		var msg instruction
-		log.Printf("recv: %s waiting for a recv", p.robot.Name)
+		log.Printf("recv: %s waiting for a recv", p.Robot.Id)
 		err := websocket.JSON.Receive(p.ws, &msg)
+		log.Printf("recv: %s: %+v\n", p.Robot.Id, msg)
 		if err != nil {
 			log.Print(err)
 			break
 		}
-		p.instruction = msg
-		log.Printf("recv: %s: %+v %v\n", p.robot.Name, p.instruction, msg)
 	}
 	p.ws.Close()
 }

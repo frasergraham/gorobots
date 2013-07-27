@@ -6,19 +6,19 @@ type position struct {
 }
 
 type weapon struct {
-	Strength float64 `json:"Strength"`
+	Strength float64 `json:"strength"`
 	Radius   float64 `json:"radius"`
 }
 
 type stats struct {
 	Speed float64 `json:"speed"`
-	HP    int     `json:"hp"`
+	Hp    int     `json:"hp"`
 }
 
 type robot struct {
-	Name        string   `json:"name"`
-	Stats       stats    `json:"stats"`
-	Health      float64  `json:"health"`
-	Position    position `json:"position"`
-	Destination position `json:"destination"`
+	Id       string   `json:"id"`
+	Stats    stats    `json:"stats"`
+	Health   float64  `json:"health"`
+	Position position `json:"position"`
+	Moveto   position `json:"move_to"`
 }

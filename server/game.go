@@ -13,6 +13,10 @@ type game struct {
 	id         chan int
 }
 
+type handshake struct {
+    ID string `json:"id"`
+}
+
 var g = game{
 	register:   make(chan *player),
 	unregister: make(chan *player),
@@ -30,20 +34,20 @@ func (g *game) run() {
 	for {
 		select {
 		case p := <-g.register:
-			log.Printf("adding player: %+v", p.robot.Name)
+			log.Printf("adding player: %+v", p.Robot.Id)
 			g.players[p] = true
 		case p := <-g.unregister:
 			delete(g.players, p)
 			close(p.send)
-		case <-time.Tick(10 * time.Second):
+		case <-time.Tick(1 * time.Second):
 			fmt.Printf("\n\n\n")
 			log.Printf("calculating state")
 
 			robots := []robot{}
 			for p := range g.players {
-				p.robot.Position.X = p.instruction.MoveTo.X
-				p.robot.Position.Y = p.instruction.MoveTo.Y
-				robots = append(robots, p.robot)
+				p.Robot.Position.X = p.Instruction.MoveTo.X
+				p.Robot.Position.Y = p.Instruction.MoveTo.Y
+				robots = append(robots, p.Robot)
 			}
 
 			for p := range g.players {
