@@ -29,6 +29,35 @@
                 }
             };
 
+            function evalInput( input, output )
+            {
+                var theResult, evalSucceeded;
+                try{
+                    // TODO: Create an iframe for a blank slate context to evaluate within.
+                    theResult = eval( input );
+                    evalSucceeded = true;
+                }
+                catch(e){
+                    output.innerHTML = e;
+                }
+                if ( evalSucceeded )
+                {
+                    output.innerHTML = (theResult+"").replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( />/g, '&gt;' ).replace( /\r\n|\r|\n/g, '<br>' );
+                }
+
+                return theResult;
+            }
+
+
+            var eval_robot = function(){
+                var stuff = "hello";
+                var robot_code = document.getElementById('robot');
+                var output = document.getElementById('output');
+                var code = "( " + robot_code.value + " )";
+                var rc = evalInput(code, output);
+                rc.call(this, stuff);
+            };
+
 
             function init(){
                 data = {
@@ -47,5 +76,14 @@
   </head>
   <body onload="init();">
     <canvas id="tutorial" width="450" height="350"></canvas>
+    <textarea cols=50 rows=26 id="robot">function robot(data){
+        var my_turn = {};
+        console.log(data);
+        return my_turn;
+    }
+    </textarea>
+    <a href="#" onclick="eval_robot();">Run</a>
+    <div id="output"></div>
+
   </body>
 </html>
