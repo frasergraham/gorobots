@@ -55,7 +55,7 @@ func (g *game) run() {
 		case p := <-g.unregister:
 			delete(g.players, p)
 			close(p.send)
-		case <-time.Tick(10 * time.Millisecond):
+		case <-time.Tick(time.Duration(*tick) * time.Millisecond):
 			robots := []robot{}
 			for p := range g.players {
 				p.nudge()

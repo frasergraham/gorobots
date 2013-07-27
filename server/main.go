@@ -11,6 +11,9 @@ import (
 )
 
 var addr = flag.String("addr", ":8666", "http service address")
+var velocity = flag.Float64("velocity", 3, "")
+var delta = flag.Float64("delta", 1, "")
+var tick = flag.Int("tick", 1000, "")
 
 func main() {
 	rand.Seed(time.Now().UnixNano())

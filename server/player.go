@@ -3,6 +3,8 @@ package main
 import (
 	"code.google.com/p/go.net/websocket"
 	"log"
+    "fmt"
+    "math"
 )
 
 type player struct {
@@ -40,25 +42,26 @@ func (p *player) recv() {
 	p.ws.Close()
 }
 
+const threshold = 1e-7
+
 func move(d1, d2 position, velocity float64, timeDelta float64) position {
-    deltaX := float64(d2.X - d1.X) / velocity * timeDelta
-	deltaY := float64(d2.Y - d1.Y) / velocity * timeDelta
+    deltaX := float64(d2.X - d1.X)
+	deltaY := float64(d2.Y - d1.Y)
+    mag := math.Sqrt(deltaX * deltaX + deltaY * deltaY)
+    if math.Abs(mag) < threshold {
+        return d1
+    }
+    moveX := deltaX / mag * velocity
+	moveY := deltaY / mag * velocity
 	return position{
-        int(deltaX), int(deltaY),
+        int(float64(d1.X) + moveX),
+        int(float64(d1.Y) + moveY),
     }
 }
 
 func (p *player) nudge() {
-	switch {
-	case p.Robot.Position.X < p.Robot.MoveTo.X:
-		p.Robot.Position.X += 1
-	case p.Robot.Position.X > p.Robot.MoveTo.X:
-		p.Robot.Position.X -= 1
-	}
-	switch {
-	case p.Robot.Position.Y < p.Robot.MoveTo.Y:
-		p.Robot.Position.Y += 1
-	case p.Robot.Position.Y > p.Robot.MoveTo.Y:
-		p.Robot.Position.Y -= 1
-	}
+    fmt.Println()
+    newPos := move(p.Robot.Position, p.Robot.MoveTo, *velocity, *delta)
+    p.Robot.Position.X = newPos.X
+    p.Robot.Position.Y = newPos.Y
 }
