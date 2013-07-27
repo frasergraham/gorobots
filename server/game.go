@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"time"
 )
@@ -40,13 +39,12 @@ func (g *game) run() {
 			delete(g.players, p)
 			close(p.send)
 		case <-time.Tick(1 * time.Second):
-			fmt.Printf("\n\n\n")
-			log.Printf("calculating state")
+			// fmt.Printf("\n\n\n")
+			// log.Printf("calculating state")
 
 			robots := []robot{}
 			for p := range g.players {
-				p.Robot.Position = p.Instruction.MoveTo
-				p.Robot.MoveTo = p.Instruction.MoveTo
+				p.nudge()
 				robots = append(robots, p.Robot)
 			}
 

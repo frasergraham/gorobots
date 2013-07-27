@@ -19,12 +19,10 @@ type instruction struct {
 
 func (p *player) sender() {
 	for robots := range p.send {
-		log.Printf("%s sending %d robots", p.Robot.Id, len(*robots))
 		err := websocket.JSON.Send(p.ws, *robots)
 		if err != nil {
 			break
 		}
-		log.Printf("%s: state sent", p.Robot.Id)
 	}
 	p.ws.Close()
 }
