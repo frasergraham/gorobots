@@ -3,15 +3,17 @@
     "robot_stats":{
         "speed": 12,
         "hp": 100,
-        "weapon_strength": 10,
-        "weapon radius": 5
+        "weapon": {
+            "strength": 10,
+            "radius": 5
+        }
     },
     "health": 55,
     "position":{
         "x": 100,
         "y": 300
     },
-    "move_to": {
+    "destination": {
         "x": 120,
         "y": 120
     },
