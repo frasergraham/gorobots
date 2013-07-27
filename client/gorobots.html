@@ -2,9 +2,50 @@
 
 <html>
     <head>
+        <style type="text/css">
+            canvas { border: 1px solid black; }
+        </style>
         <script type="text/javascript" src="gorobots.js"></script>
+        <script type="text/javascript">
+            var d = function(data){
+
+                var canvas = document.getElementById('tutorial');
+
+                if (canvas.getContext){
+                    var ctx = canvas.getContext('2d');
+
+                    // ctx.fillStyle = "rgb(200,0,0)";
+                    // ctx.fillRect (10, 10, 55, 50);
+
+                    var x = data['position']['x'];
+                    var y = data['position']['y'];
+                    // console.log(data);
+
+                    ctx.clearRect ( 0 , 0 , 450 , 350 );
+
+                    ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
+                    ctx.fillRect (x, y, 10, 10);
+
+                }
+            };
 
 
+            function init(){
+                data = {
+                    "position":{
+                        "x": 20,
+                        "y":20
+                    }
+                }
+                d(data);
+                establish_connection(d);
+            }
 
+    </script>
     </head>
+    <body>
+  </head>
+  <body onload="init();">
+    <canvas id="tutorial" width="450" height="350"></canvas>
+  </body>
 </html>

@@ -1,30 +1,31 @@
-var websocket_server = "midna.local"
 
+var establish_connection = function (callback){
 
-var establish_connection = function establish_connection(){
+    var websocket_server = "ws://midna.local:8666/ws/";
+    connection = new WebSocket(websocket_server, null);
 
-    my_connection.connection = new WebSocket(websocket_server, null);
-
-    my_connection.onerror = function (error) {
+    connection.onerror = function (error) {
       console.log('WebSocket Error ' + error);
     };
 
-    my_connection.connection.onopen = function(){
+    connection.onopen = function(){
         console.log("Connected to " + websocket_server);
     };
 
-    my_connection.connection.onclose = function(){
+    connection.onclose = function(){
         console.log("Lost Connection: " + websocket_server);
         setTimeout(function(){
-            establish_connection();
+            // console.log("Trying");
+            establish_connection(callback);
         }, 5000);
     };
 
-    my_connection.connection.onmessage = function (e) {
+    connection.onmessage = function (e) {
         new_data = JSON.parse(e.data);
+        // console.log(new_data);
 
-
+        callback(new_data);
     };
 
-}();
+};
 
