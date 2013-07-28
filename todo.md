@@ -12,3 +12,5 @@
 
 
 ## Server
+* add ids to turns
+* keep track of who gets a response in, and only send state to those clients
