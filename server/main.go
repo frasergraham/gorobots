@@ -39,8 +39,8 @@ func addPlayer(ws *websocket.Conn) {
 	}
 
 	start_pos := position{
-		X: rand.Float64() * 400,
-		Y: rand.Float64() * 400,
+		X: rand.Float64() * 800,
+		Y: rand.Float64() * 550,
 	}
 	p := &player{
 		Robot: robot{
