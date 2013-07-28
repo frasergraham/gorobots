@@ -41,7 +41,7 @@
                 y = Math.floor(Math.random() * map.height);
                 console.log("X: " + x + ", Y: " + y);
                 instructions.move_to = {"x": x, "y": y};
-                instructions.fire_at = {"x": 100, "y": 100};
+                instructions.fire_at = {"x": Math.floor(Math.random() * map.width), "y": Math.floor(Math.random() * map.height)};
             }
             else{
                 instructions.move_to = {"x": x, "y": y};
@@ -53,6 +53,12 @@
             instructions.move_to = {"x": x, "y": y};
         }
 
+        if (data.scanners.length > 0){
+            instructions.fire_at = data.scanners[0].position;
+        }
+        else{
+            instructions.fire_at = {"x": Math.floor(Math.random() * map.width), "y": Math.floor(Math.random() * map.height)};
+        }
         return instructions;
     }
     </pre>
