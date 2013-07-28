@@ -1,10 +1,12 @@
 function init(){(function gorobots(my){
     my.width = 800;
-    my.height = 400;
+    my.height = 550;
     my.server = "ws://twisted.local:8666/ws/";
-    my.server = "ws://rs.mcquay.me:8666/ws/";
+    // my.server = "ws://rs.mcquay.me:8666/ws/";
     my.websocket = null;
     my.id = null;
+    my.ctx = null;
+    my.observe_only = false;
 
     my.debug = false;
     my.debug_draw = true;
@@ -36,6 +38,25 @@ function init(){(function gorobots(my){
         "rgba(222, 0, 222, 0.5)",
         "rgba(222, 222, 0, 0.5)"
     ];
+
+
+    my.toggle_debug = function(){
+        if (my.debug_draw)
+            my.debug_draw = false;
+        else
+            my.debug_draw = true;
+
+        console.log("toggling debug status to " + my.observe_only);
+    };
+
+    my.toggle_observer = function(){
+        if (my.observe_only)
+            my.observe_only = false;
+        else
+            my.observe_only = true;
+
+        console.log("toggling observer status to " + my.observe_only);
+    };
 
     my.connect = function(server){
 
@@ -75,7 +96,6 @@ function init(){(function gorobots(my){
             }
 
             my.process_packet(new_data);
-
         };
 
         return connection;
@@ -84,17 +104,29 @@ function init(){(function gorobots(my){
     my.process_packet = function(new_data){
         var players = "";
 
+        my.clear();
+
         // Update and Draw the Robots
         var robots = new_data['robots'];
+
         for (var i=0; i < robots.length; i++){
+            if ("position" in robots[i]){
+                if (robots[i]['id'] == my.id)
+                    my.clip(robots[i]);
+            }
+        }
+
+        for (i=0; i < robots.length; i++){
             players += "&nbsp&nbsp" + robots[i]['id'];
 
             if (my.debug)
                 console.log({"robot": robots[i]});
 
             if ("position" in robots[i]){
-               my.draw(robots[i], i);
+                my.draw(robots[i], i);
             }
+
+            // Update my the robot for this client
             if (robots[i]['id'] == my.id)
                 my.update_robot(robots[i], i);
         }
@@ -116,61 +148,56 @@ function init(){(function gorobots(my){
         players_div.innerHTML = players;
     };
 
+    my.clip = function(robot){
+        if (!my.observe_only){
+            my.ctx.save();
+            my.ctx.beginPath();
+            my.ctx.arc(robot.position.x, robot.position.y, 200, 0, 2 * Math.PI, false);
+            my.ctx.clip();
+        }
+    };
+
+    my.clear = function(){
+        my.ctx.restore();
+        my.ctx.clearRect ( 0 , 0 , my.width , my.height );
+    };
+
     my.draw = function(data, index){
 
-        var canvas = document.getElementById('battlefield');
+        var x = data['position']['x'];
+        var y = data['position']['y'];
 
-        if (canvas.getContext){
+        if ('type' in data && data['type'] == 'bullet'){
+            my.ctx.fillStyle = colors[0];
+            my.ctx.fillRect (x, y, 5, 5);
+        }
+        else if ('type' in data && data['type'] == 'explosion'){
+            my.ctx.beginPath();
+            my.ctx.arc(x, y, 40, 0, 2 * Math.PI, false);
+            my.ctx.fillStyle = colors[index+1];
+            my.ctx.fill();
+        }
+        else{
+            my.ctx.fillStyle = colors[index+1];
+            my.ctx.fillRect (x-5, y-5, 10, 10);
 
-            // ctx.canvas.width = my.width;
-            // ctx.canvas.height = my.height;
+            if (my.id == data['id'])
+                my.ctx.font="bold 22px Helvetica";
+            else
+                my.ctx.font="10px Helvetica";
 
-            var ctx = canvas.getContext('2d');
-            var x = data['position']['x'];
-            var y = data['position']['y'];
+            my.ctx.fillText(
+                data['id'] + "[" + data['health'] + "]",
+                x+12,y+10);
 
-            if (index === 0)
-                ctx.clearRect ( 0 , 0 , 800 , 550 );
-
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(x, y, 300, 0, 2 * Math.PI, false);
-            ctx.clip();
-
-            if ('type' in data && data['type'] == 'bullet'){
-                ctx.fillStyle = colors[0];
-                ctx.fillRect (x, y, 5, 5);
+            if (my.debug_draw && 'move_to' in data) {
+                // my.ctx.restore();
+                my.ctx.beginPath();
+                my.ctx.moveTo(x, y);
+                my.ctx.strokeStyle = colors[0];
+                my.ctx.lineTo(data.move_to.x, data.move_to.y);
+                my.ctx.stroke();
             }
-            else if ('type' in data && data['type'] == 'explosion'){
-                ctx.beginPath();
-                ctx.arc(x, y, 40, 0, 2 * Math.PI, false);
-                ctx.fillStyle = colors[index+1];
-                ctx.fill();
-            }
-            else{
-                ctx.fillStyle = colors[index+1];
-                ctx.fillRect (x-5, y-5, 10, 10);
-
-                if (my.id == data['id'])
-                    ctx.font="bold 22px Helvetica";
-                else
-                    ctx.font="10px Helvetica";
-
-                ctx.fillText(
-                    data['id'] + "[" + data['health'] + "]",
-                    x+12,y+10);
-
-                if (my.debug_draw && 'move_to' in data) {
-                    ctx.restore();
-                    ctx.beginPath();
-                    ctx.moveTo(x, y);
-                    ctx.strokeStyle = colors[0];
-                    ctx.lineTo(data.move_to.x, data.move_to.y);
-                    ctx.stroke();
-                }
-            }
-
-            ctx.restore();
         }
     };
 
@@ -223,7 +250,24 @@ function init(){(function gorobots(my){
         editor = ace.edit("editor");
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/javascript");
-        document.getElementById('check_code').onclick=my.eval_input;
+
+        document.getElementById('debug_toggle').onclick=function(){
+                my.toggle_debug();
+            };
+
+        document.getElementById('fov_toggle').onclick=function(){
+                my.toggle_observer();
+            };
+
+        var canvas = document.getElementById('battlefield');
+        if (canvas.getContext){
+            my.ctx = canvas.getContext('2d');
+            my.ctx.canvas.width = my.width;
+            my.ctx.canvas.height = my.height;
+        }
+        else{
+            console.log("Canvas Error");
+        }
     };
 
     my.init();
