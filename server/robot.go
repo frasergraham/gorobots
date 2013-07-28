@@ -1,8 +1,8 @@
 package main
 
 type position struct {
-	X int `json:"x"`
-	Y int `json:"y"`
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 type weapon struct {
@@ -29,4 +29,13 @@ type projectile struct {
 	Position position `json:"position"`
 	MoveTo   position `json:"move_to"`
 	Damage   int      `json:"damage"`
+}
+
+type splosion struct {
+	Id        string   `json:"id"`
+	Position  position `json:"position"`
+	Radius    int      `json:"radius"`
+	MaxDamage int      `json:"damage"`
+	MinDamage int      `json:"damage"`
+	Lifespan  int      `json:"lifespan"`
 }

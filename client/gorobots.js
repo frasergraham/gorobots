@@ -6,7 +6,7 @@ function init(){(function gorobots(my){
     my.websocket = null;
     my.id = null;
     my.ctx = null;
-    my.observe_only = false;
+    my.observe_only = true;
 
     my.debug = false;
     my.debug_draw = true;
@@ -108,38 +108,57 @@ function init(){(function gorobots(my){
 
         // Update and Draw the Robots
         var robots = new_data['robots'];
+        var i = 0;
 
-        for (var i=0; i < robots.length; i++){
-            if ("position" in robots[i]){
+        if (robots){
+            for (i=0; i < robots.length; i++){
+                if ("position" in robots[i]){
+                    if (robots[i]['id'] == my.id)
+                        my.clip(robots[i]);
+                }
+            }
+
+            for (i=0; i < robots.length; i++){
+                players += "&nbsp&nbsp" + robots[i]['id'];
+
+                if (my.debug)
+                    console.log(JSON.stringify(robots[i]));
+
+                if ("position" in robots[i]){
+                    my.draw(robots[i], i);
+                }
+
+                // Update my the robot for this client
                 if (robots[i]['id'] == my.id)
-                    my.clip(robots[i]);
+                    my.update_robot(robots[i], i);
             }
         }
 
-        for (i=0; i < robots.length; i++){
-            players += "&nbsp&nbsp" + robots[i]['id'];
-
-            if (my.debug)
-                console.log({"robot": robots[i]});
-
-            if ("position" in robots[i]){
-                my.draw(robots[i], i);
-            }
-
-            // Update my the robot for this client
-            if (robots[i]['id'] == my.id)
-                my.update_robot(robots[i], i);
-        }
-
-        // Update and Draw the projecticles
+        // Draw the projecticles
         var projectiles = new_data['projectiles'];
-        for (i=0; i < projectiles.length; i++){
-            if (my.debug)
-                console.log({"projectiles": projectiles[i]});
+        if (projectiles){
+            for (i=0; i < projectiles.length; i++){
+                if (my.debug)
+                    console.log(JSON.stringify(projectiles[i]));
 
-            if ("position" in projectiles[i]){
-                projectiles[i]['type'] = 'bullet';
-                my.draw(projectiles[i], i+1);
+                if ("position" in projectiles[i]){
+                    projectiles[i]['type'] = 'bullet';
+                    my.draw(projectiles[i], i+1);
+                }
+            }
+        }
+
+        // Draw the projecticles
+        var splosions = new_data['splosions'];
+        if (splosions){
+            for (i=0; i < splosions.length; i++){
+                if (my.debug)
+                    console.log(JSON.stringify(splosions[i]));
+
+                if ("position" in splosions[i]){
+                    splosions[i]['type'] = 'explosion';
+                    my.draw(splosions[i], i+1);
+                }
             }
         }
 
@@ -173,8 +192,8 @@ function init(){(function gorobots(my){
         }
         else if ('type' in data && data['type'] == 'explosion'){
             my.ctx.beginPath();
-            my.ctx.arc(x, y, 40, 0, 2 * Math.PI, false);
-            my.ctx.fillStyle = colors[index+1];
+            my.ctx.arc(x, y, data.radius, 0, 2 * Math.PI, false);
+            my.ctx.fillStyle = colors[3];
             my.ctx.fill();
         }
         else{
@@ -232,8 +251,8 @@ function init(){(function gorobots(my){
 
         out['id'] = my.id;
 
-        if (websocket){
-            var sent_ok = websocket.send(JSON.stringify(out));
+        if (my.websocket){
+            var sent_ok = my.websocket.send(JSON.stringify(out));
             if (my.debug){
                 if (sent_ok)
                     console.log("SENT: " + JSON.stringify(out));
@@ -246,7 +265,7 @@ function init(){(function gorobots(my){
 
     my.init = function(){
         console.log("Welcome to GoRobots");
-        websocket = my.connect(my.server);
+        my.websocket = my.connect(my.server);
         editor = ace.edit("editor");
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/javascript");

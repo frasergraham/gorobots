@@ -9,6 +9,7 @@ import (
 type payload struct {
 	Robots      []robot      `json:"robots"`
 	Projectiles []projectile `json:"projectiles"`
+	Splosions   []splosion   `json:"splosions"`
 }
 
 type player struct {
@@ -50,6 +51,13 @@ func (p *player) recv() {
 
 const threshold = 1e-7
 
+func distance(p1, p2 position) float64 {
+	deltaX := float64(p2.X - p1.X)
+	deltaY := float64(p2.Y - p1.Y)
+	mag := math.Abs(math.Sqrt(deltaX*deltaX + deltaY*deltaY))
+	return mag
+}
+
 func move(d1, d2 position, velocity float64, timeDelta float64) position {
 	deltaX := float64(d2.X - d1.X)
 	deltaY := float64(d2.Y - d1.Y)
@@ -57,11 +65,31 @@ func move(d1, d2 position, velocity float64, timeDelta float64) position {
 	if math.Abs(mag) < threshold {
 		return d1
 	}
-	moveX := deltaX / mag * velocity
-	moveY := deltaY / mag * velocity
+
+	distance_this_frame := velocity * timeDelta
+	// log.Printf("%+v  ->  %+v   :  %+v", d1, d2, distance_this_frame)
+
+	if math.Abs(mag) < distance_this_frame {
+		return d2
+	}
+
+	moveX := 0.0
+	moveY := 0.0
+
+	if deltaY > 0 {
+		theta := math.Atan(deltaX / deltaY)
+		moveX = math.Sin(theta) * distance_this_frame
+		moveY = math.Cos(theta) * distance_this_frame
+	} else {
+		theta := math.Atan(deltaX / deltaY)
+		moveX = -math.Sin(theta) * distance_this_frame
+		moveY = -math.Cos(theta) * distance_this_frame
+	}
+
+	// log.Printf("%+v , %+v", moveX, moveY)
 	return position{
-		int(float64(d1.X) + moveX),
-		int(float64(d1.Y) + moveY),
+		d1.X + moveX,
+		d1.Y + moveY,
 	}
 }
 
@@ -71,15 +99,35 @@ func (p *player) nudge() {
 	p.Robot.Position.Y = newPos.Y
 }
 
+func (s *splosion) tick() {
+	s.Lifespan--
+	if s.Lifespan <= 0 {
+		delete(g.splosions, s)
+	}
+}
+
 func (p *projectile) nudge() {
 	newPos := move(p.Position, p.MoveTo, *velocity*5, *delta)
 
-	if p.Position.Y-p.MoveTo.Y < 5 && p.Position.X-p.MoveTo.X < 5 {
+	if distance(p.Position, p.MoveTo) < 5 {
 		delete(g.projectiles, p)
 
+		// Spawn a splosion
+		splo := &splosion{
+			Id:        p.Id,
+			Position:  p.Position,
+			Radius:    *weapon_radius,
+			MaxDamage: 10,
+			MinDamage: 5,
+			Lifespan:  8,
+		}
+		g.splosions[splo] = true
+
 		for player := range g.players {
-			if player.Robot.Position.X-p.Position.X < 20 &&
-				player.Robot.Position.Y-p.Position.Y < 20 {
+			dist := distance(player.Robot.Position, p.Position)
+			if dist < float64(*weapon_radius) {
+
+				// TODO map damage Max to Min based on distance from explosion
 				player.Robot.Health -= p.Damage
 				log.Printf("Robot %+v is injured", player.Robot)
 			}
@@ -96,6 +144,8 @@ func (p *player) fire() {
 			return
 		}
 	}
+
+	// log.Printf("%v Fired at %v %v", p.Robot.Id, p.Robot.FireAt.X, p.Robot.FireAt.Y)
 
 	proj := &projectile{
 		Id:       p.Robot.Id,

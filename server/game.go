@@ -9,6 +9,7 @@ import (
 type game struct {
 	players     map[*player]bool
 	projectiles map[*projectile]bool
+	splosions   map[*splosion]bool
 	register    chan *player
 	unregister  chan *player
 	id          chan int
@@ -22,6 +23,7 @@ var g = game{
 	register:    make(chan *player),
 	unregister:  make(chan *player),
 	projectiles: make(map[*projectile]bool),
+	splosions:   make(map[*splosion]bool),
 	players:     make(map[*player]bool),
 }
 
@@ -61,6 +63,7 @@ func (g *game) run() {
 			payload := payload{}
 			payload.Robots = []robot{}
 			payload.Projectiles = []projectile{}
+
 			for p := range g.players {
 				p.nudge()
 				if p.Robot.FireAt.X != 0 && p.Robot.FireAt.Y != 0 {
@@ -68,13 +71,20 @@ func (g *game) run() {
 				}
 				payload.Robots = append(payload.Robots, p.Robot)
 			}
+			sort.Sort(robotSorter{payload.Robots})
+
 			for p := range g.projectiles {
 				p.nudge()
 				payload.Projectiles = append(payload.Projectiles, *p)
 			}
-			sort.Sort(robotSorter{payload.Robots})
+
+			for s := range g.splosions {
+				s.tick()
+				payload.Splosions = append(payload.Splosions, *s)
+			}
 
 			for p := range g.players {
+				// log.Printf("%+v", payload)
 				p.send <- &payload
 			}
 		}
