@@ -11,6 +11,7 @@ type payload struct {
 	Robots      []robot      `json:"robots"`
 	Projectiles []projectile `json:"projectiles"`
 	Splosions   []splosion   `json:"splosions"`
+	Reset       bool         `json:"reset"`
 }
 
 type player struct {
@@ -137,7 +138,7 @@ func (s *splosion) tick() {
 }
 
 func (p *projectile) nudge() {
-	newPos := move(p.Position, p.MoveTo, *velocity*5, *delta)
+	newPos := move(p.Position, p.MoveTo, float64(p.Speed), *delta)
 
 	hit_player := false
 	for player := range g.players {
@@ -199,6 +200,7 @@ func (p *player) fire() {
 		MoveTo:   p.Robot.FireAt,
 		Damage:   10,
 		Radius:   p.Robot.Stats.WeaponRadius,
+		Speed:    float64(p.Robot.Stats.Speed * 2),
 	}
 	g.projectiles[proj] = true
 }

@@ -37,6 +37,7 @@ type projectile struct {
 	Position position `json:"position"`
 	MoveTo   position `json:"move_to"`
 	Radius   int      `json:"radius"`
+	Speed    float64  `json:"speed"`
 	Damage   int      `json:"damage"`
 }
 

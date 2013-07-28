@@ -122,6 +122,10 @@ function init(){(function gorobots(my){
     my.process_packet = function(new_data){
         var players = "";
 
+        if (new_data.reset){
+            my.setup_robot();
+        }
+
         my.clear();
 
         // Status Bar Text

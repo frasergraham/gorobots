@@ -89,10 +89,6 @@ func (g *game) run() {
 				payload.Splosions = append(payload.Splosions, *s)
 			}
 
-			for p := range g.players {
-				p.send <- &payload
-			}
-
 			if robots_remaining <= 1 && len(g.players) > 1 {
 				for p := range g.players {
 					if p.Robot.Health > 0 {
@@ -100,7 +96,15 @@ func (g *game) run() {
 					}
 					p.reset()
 				}
+				payload.Reset = true
+			} else {
+				payload.Reset = false
 			}
+
+			for p := range g.players {
+				p.send <- &payload
+			}
+
 		}
 	}
 }
