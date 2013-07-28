@@ -37,10 +37,20 @@ func addPlayer(ws *websocket.Conn) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	start_pos := position{
+		X: rand.Float64() * 400,
+		Y: rand.Float64() * 400,
+	}
 	p := &player{
-		Robot: robot{Id: id, Health: 200, Scanners: make([]scanner, 0)},
-		send:  make(chan *payload),
-		ws:    ws,
+		Robot: robot{
+			Position: start_pos,
+			MoveTo:   start_pos,
+			Id:       id,
+			Health:   200,
+			Scanners: make([]scanner, 0)},
+		send: make(chan *payload),
+		ws:   ws,
 	}
 	g.register <- p
 	defer func() {

@@ -70,7 +70,7 @@ function init(){(function gorobots(my){
             console.log("Connected to " + server);
 
             // Handshake with the server
-            connection.send(JSON.stringify({'move_to':{"x": 0, "y":0}}));
+            // connection.send(JSON.stringify({'move_to':{"x": 0, "y":0}}));
         };
 
         connection.onclose = function(){
