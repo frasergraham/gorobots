@@ -173,7 +173,7 @@ func (p *projectile) nudge() {
 					player.Robot.Health -= p.Damage
 					// log.Printf("Robot %+v is injured", player.Robot)
 					if player.Robot.Health <= 0 {
-						log.Printf("Robot %+v is dead", player.Robot)
+						// log.Printf("Robot %+v is dead", player.Robot)
 					}
 				}
 			}

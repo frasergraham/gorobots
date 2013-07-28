@@ -95,6 +95,9 @@ func (g *game) run() {
 
 			if robots_remaining <= 1 && len(g.players) > 1 {
 				for p := range g.players {
+					if p.Robot.Health > 0 {
+						log.Printf("Robot %v Wins", p.Robot.Id)
+					}
 					p.reset()
 				}
 			}
