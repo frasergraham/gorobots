@@ -210,7 +210,7 @@ function init(){(function gorobots(my){
                 data['id'] + "[" + data['health'] + "]",
                 x+12,y+10);
 
-            if (my.debug_draw && 'move_to' in data) {
+            if (my.debug_draw && 'move_to' in data && my.id == data['id']) {
                 // my.ctx.restore();
                 my.ctx.beginPath();
                 my.ctx.moveTo(x, y);
