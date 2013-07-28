@@ -7,6 +7,13 @@ function init(){(function gorobots(my){
     my.id = null;
     my.ctx = null;
     my.observe_only = true;
+    my.y_base = 16; // The top status bar
+
+
+    var d = new Date();
+    my.last_frame_time = d.getTime();
+    my.delta = 0;
+    my.delta_history = [];
 
     my.debug = false;
     my.debug_draw = true;
@@ -81,6 +88,17 @@ function init(){(function gorobots(my){
         };
 
         connection.onmessage = function (e) {
+
+            var d = new Date();
+            var time = d.getTime();
+            my.delta = time - my.last_frame_time;
+            my.delta_history.unshift(my.delta);
+            if (my.delta_history.length > 200){
+                my.delta_history.pop();
+            }
+
+            my.last_frame_time = time;
+
             // console.log(e.data);
             new_data = JSON.parse(e.data);
 
@@ -90,7 +108,7 @@ function init(){(function gorobots(my){
                 // an ID and are in the game.
                 my.id = new_data['id'];
                 console.log("Assigned ID " + my.id + " by server");
-                my.setup_robot();
+                // my.setup_robot();
             }
 
             my.process_packet(new_data);
@@ -103,6 +121,19 @@ function init(){(function gorobots(my){
         var players = "";
 
         my.clear();
+
+        if (my.debug_draw){
+            var slowest = Math.max.apply(null, my.delta_history);
+            var debug_string = slowest + "ms" + "    " + my.server;
+            my.ctx.fillStyle = colors[0];
+            my.ctx.font="12px Helvetica";
+            my.ctx.fillText(debug_string,2,12);
+        }
+
+        my.ctx.save();
+        my.ctx.beginPath();
+        my.ctx.rect(0,my.y_base,my.width,my.height);
+        my.ctx.clip();
 
         // Update and Draw the Robots
         var robots = new_data['robots'];
@@ -165,6 +196,12 @@ function init(){(function gorobots(my){
             }
         }
 
+        my.ctx.beginPath();
+        my.ctx.moveTo(0, my.y_base);
+        my.ctx.strokeStyle = colors[0];
+        my.ctx.lineTo(my.width, my.y_base);
+        my.ctx.stroke();
+
         // Set the list of players
         var players_div = document.getElementById("players");
         players_div.innerHTML = players;
@@ -186,8 +223,11 @@ function init(){(function gorobots(my){
 
     my.draw = function(data, index){
 
-        var x = data['position']['x'];
-        var y = data['position']['y'];
+        var x_scale = my.ctx.canvas.width / my.width;
+        var y_scale = (my.ctx.canvas.height - my.y_base )/ my.height;
+
+        var x = data['position']['x'] * x_scale;
+        var y = data['position']['y'] * y_scale + my.y_base;
 
         if ('type' in data && data['type'] == 'bullet'){
             my.ctx.fillStyle = colors[0];
@@ -195,7 +235,7 @@ function init(){(function gorobots(my){
         }
         else if ('type' in data && data['type'] == 'explosion'){
             my.ctx.beginPath();
-            my.ctx.arc(x, y, data.radius, 0, 2 * Math.PI, false);
+            my.ctx.arc(x, y, data.radius * x_scale, 0, 2 * Math.PI, false);
             my.ctx.fillStyle = colors[3];
             my.ctx.fill();
         }
@@ -217,7 +257,7 @@ function init(){(function gorobots(my){
                 my.ctx.beginPath();
                 my.ctx.moveTo(x, y);
                 my.ctx.strokeStyle = colors[0];
-                my.ctx.lineTo(data.move_to.x, data.move_to.y);
+                my.ctx.lineTo(data.move_to.x * x_scale, data.move_to.y * y_scale + my.y_base);
                 my.ctx.stroke();
             }
         }

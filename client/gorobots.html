@@ -3,11 +3,12 @@
 <html>
     <head>
         <style type="text/css" media="screen">
-            canvas { border: 1px solid black; float: right;}
             body { font-family: Helvetica, Sans-Serif; }
-
-            body {
-              overflow: hidden;
+            canvas {
+                border: 3px solid black;
+                float: right;
+                width: 58%;
+                height: 100%;
             }
 
             .ace_editor {
@@ -78,11 +79,10 @@
     </pre>
 
     <canvas id="battlefield"></canvas>
-
+    <div style="clear:both"></div>
     <a href="#" id='debug_toggle'>Toggle Debug</a>
     <a href="#" id='fov_toggle'>Toggle FOV</a>
     <pre id="players"></pre>
     <div id="output"></div>
-
   </body>
 </html>
