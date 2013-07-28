@@ -15,13 +15,19 @@ type stats struct {
 	Hp    int     `json:"hp"`
 }
 
-type robot struct {
-	Id       string   `json:"id"`
-	Stats    stats    `json:"stats"`
-	Health   int      `json:"health"`
+type scanner struct {
 	Position position `json:"position"`
-	MoveTo   position `json:"move_to"`
-	FireAt   position `json:"fire_at"`
+	Stats    stats    `json:"stats"`
+}
+
+type robot struct {
+	Id       string    `json:"id"`
+	Stats    stats     `json:"stats"`
+	Health   int       `json:"health"`
+	Position position  `json:"position"`
+	MoveTo   position  `json:"move_to"`
+	FireAt   position  `json:"fire_at"`
+	Scanners []scanner `json:"scanners"`
 }
 
 type projectile struct {

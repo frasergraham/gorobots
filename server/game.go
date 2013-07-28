@@ -66,6 +66,7 @@ func (g *game) run() {
 
 			for p := range g.players {
 				if p.Robot.Health > 0 {
+					p.scan()
 					p.nudge()
 					if p.Robot.FireAt.X != 0 && p.Robot.FireAt.Y != 0 {
 						p.fire()

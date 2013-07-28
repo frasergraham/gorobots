@@ -99,6 +99,25 @@ func (p *player) nudge() {
 	p.Robot.Position.Y = newPos.Y
 }
 
+func (p *player) scan() {
+	p.Robot.Scanners = make([]scanner, 0)
+	for player := range g.players {
+		if player.Robot.Id == p.Robot.Id {
+			continue
+		}
+		dist := distance(player.Robot.Position, p.Robot.Position)
+		if dist < 200.0 {
+			s := scanner{
+				Position: position{
+					X: player.Robot.Position.X,
+					Y: player.Robot.Position.Y,
+				},
+			}
+			p.Robot.Scanners = append(p.Robot.Scanners, s)
+		}
+	}
+}
+
 func (s *splosion) tick() {
 	s.Lifespan--
 	if s.Lifespan <= 0 {
@@ -109,7 +128,18 @@ func (s *splosion) tick() {
 func (p *projectile) nudge() {
 	newPos := move(p.Position, p.MoveTo, *velocity*5, *delta)
 
-	if distance(p.Position, p.MoveTo) < 5 {
+	hit_player := false
+	for player := range g.players {
+		if player.Robot.Id == p.Id {
+			continue
+		}
+		dist := distance(player.Robot.Position, p.Position)
+		if dist < 5.0 {
+			hit_player = true
+		}
+	}
+
+	if distance(p.Position, p.MoveTo) < 5 || hit_player {
 		delete(g.projectiles, p)
 
 		// Spawn a splosion
@@ -130,7 +160,7 @@ func (p *projectile) nudge() {
 				// TODO map damage Max to Min based on distance from explosion
 				if player.Robot.Health > 0 {
 					player.Robot.Health -= p.Damage
-					log.Printf("Robot %+v is injured", player.Robot)
+					// log.Printf("Robot %+v is injured", player.Robot)
 					if player.Robot.Health <= 0 {
 						log.Printf("Robot %+v is dead", player.Robot)
 					}

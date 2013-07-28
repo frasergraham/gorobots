@@ -13,7 +13,7 @@ import (
 var addr = flag.String("addr", ":8666", "http service address")
 var velocity = flag.Float64("velocity", 30, "")
 var delta = flag.Float64("delta", 0.1, "")
-var tick = flag.Int("tick", 100, "")
+var tick = flag.Int("tick", 33, "")
 var weapon_radius = flag.Int("weapon_radius", 35, "")
 
 func main() {
@@ -38,7 +38,7 @@ func addPlayer(ws *websocket.Conn) {
 		log.Fatal(err)
 	}
 	p := &player{
-		Robot: robot{Id: id, Health: 200},
+		Robot: robot{Id: id, Health: 200, Scanners: make([]scanner, 0)},
 		send:  make(chan *payload),
 		ws:    ws,
 	}
