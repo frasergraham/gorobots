@@ -1,4 +1,5 @@
 var id = null;
+var editor = null;
 
 var establish_connection = function (update_callback, draw_callback){
 
@@ -35,7 +36,7 @@ var establish_connection = function (update_callback, draw_callback){
         var robots = new_data['robots'];
 
         for (var i=0; i < robots.length; i++){
-            players += "\n" + robots[i]['id'];
+            players += "&nbsp&nbsp" + robots[i]['id'];
             // console.log(robots[i]);
             if ("position" in robots[i]){
                draw_callback(robots[i], i);
@@ -111,7 +112,7 @@ var draw = function(data, index){
         var y = data['position']['y'];
 
         if (index === 0)
-            ctx.clearRect ( 0 , 0 , 800 , 350 );
+            ctx.clearRect ( 0 , 0 , 800 , 550 );
 
         if ('type' in data && data['type'] == 'bullet'){
             ctx.fillStyle = colors[0];
@@ -150,7 +151,7 @@ function evalInput( input, output ){
     }
     if ( evalSucceeded )
     {
-        // output.innerHTML = (theResult+"").replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( />/g, '&gt;' ).replace( /\r\n|\r|\n/g, '<br>' );
+        output.innerHTML = "OK";
     }
 
     return theResult;
@@ -158,11 +159,11 @@ function evalInput( input, output ){
 
 
 var eval_robot = function(data){
-    var robot_code = document.getElementById('robot');
+    var robot_code = editor.getSession().getValue();
     var output = document.getElementById('output');
-    var code = "( " + robot_code.value + " )";
+    var code = "( " + robot_code + " )";
     var rc = evalInput(code, output);
-    var map = {"width": 800, "height": 350};
+    var map = {"width": 800, "height": 550};
     var out = rc.call(this, data, map);
 
     out['id'] = id;
@@ -176,5 +177,9 @@ var eval_robot = function(data){
 
 function init(){
     websocket = establish_connection(eval_robot, draw);
+    editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.getSession().setMode("ace/mode/javascript");
+
 }
 

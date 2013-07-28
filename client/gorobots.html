@@ -2,19 +2,33 @@
 
 <html>
     <head>
-        <style type="text/css">
-            canvas { border: 1px solid black; }
+        <style type="text/css" media="screen">
+            canvas { border: 1px solid black; float: right;}
             body { font-family: Helvetica, Sans-Serif; }
+
+            body {
+              overflow: hidden;
+            }
+
+            .ace_editor {
+                position: relative !important;
+                border: 1px solid lightgray;
+                margin: auto;
+                float: left;
+                height: 550px;
+                width: 40%;
+            }
+
         </style>
         <script type="text/javascript" src="gorobots.js"></script>
+        <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
     </head>
     <body>
   </head>
   <body onload="init();">
     <h3>GOBOTS</h3>
 
-    <canvas id="tutorial" width="800" height="350"></canvas>
-    <textarea cols=70 rows=26 id="robot">function robot(data, map){
+    <pre id="editor">function robot(data, map){
 
         //console.log(data, map);
         var instructions = {};
@@ -44,9 +58,11 @@
 
         return instructions;
     }
+    </pre>
+
+    <canvas id="tutorial" width="800" height="550"></canvas>
 
 
-    </textarea>
     <a href="#" onclick="eval_robot();">Check Code</a>
     <pre id="players"></pre>
     <div id="output"></div>
