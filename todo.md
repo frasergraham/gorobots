@@ -13,6 +13,9 @@
 
 * active scan grows each turn you maintain it?
 
+* event on hit and death calling a user function
+* on death show whole map
+
 ### Tweakable Robots Traits
 
 * speed

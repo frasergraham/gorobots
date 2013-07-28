@@ -64,8 +64,11 @@ func (g *game) run() {
 			payload.Robots = []robot{}
 			payload.Projectiles = []projectile{}
 
+			robots_remaining := 0
+
 			for p := range g.players {
 				if p.Robot.Health > 0 {
+					robots_remaining++
 					p.scan()
 					p.nudge()
 					if p.Robot.FireAt.X != 0 && p.Robot.FireAt.Y != 0 {
@@ -88,6 +91,12 @@ func (g *game) run() {
 
 			for p := range g.players {
 				p.send <- &payload
+			}
+
+			if robots_remaining <= 1 && len(g.players) > 1 {
+				for p := range g.players {
+					p.reset()
+				}
 			}
 		}
 	}

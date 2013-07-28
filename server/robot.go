@@ -11,8 +11,10 @@ type weapon struct {
 }
 
 type stats struct {
-	Speed float64 `json:"speed"`
-	Hp    int     `json:"hp"`
+	Speed         float64 `json:"speed"`
+	Hp            int     `json:"hp"`
+	WeaponRadius  int     `json:"weapon_radius"`
+	ScannerRadius int     `json:"scanner_radius"`
 }
 
 type scanner struct {
@@ -34,6 +36,7 @@ type projectile struct {
 	Id       string   `json:"id"`
 	Position position `json:"position"`
 	MoveTo   position `json:"move_to"`
+	Radius   int      `json:"radius"`
 	Damage   int      `json:"damage"`
 }
 

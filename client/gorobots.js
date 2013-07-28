@@ -6,7 +6,7 @@ function init(){(function gorobots(my){
     my.websocket = null;
     my.id = null;
     my.ctx = null;
-    my.observe_only = true;
+    my.observe_only = false;
     my.y_base = 16; // The top status bar
 
 
@@ -95,7 +95,7 @@ function init(){(function gorobots(my){
             var time = d.getTime();
             my.delta = time - my.last_frame_time;
             my.delta_history.unshift(my.delta);
-            if (my.delta_history.length > 200){
+            if (my.delta_history.length > 50){
                 my.delta_history.pop();
             }
 
@@ -110,7 +110,7 @@ function init(){(function gorobots(my){
                 // an ID and are in the game.
                 my.id = new_data['id'];
                 console.log("Assigned ID " + my.id + " by server");
-                // my.setup_robot();
+                my.setup_robot();
             }
 
             my.process_packet(new_data);
@@ -210,7 +210,7 @@ function init(){(function gorobots(my){
     };
 
     my.clip = function(robot){
-        if (!my.observe_only){
+        if (my.observe_only){
             var x_scale = my.ctx.canvas.width / my.width;
             var y_scale = (my.ctx.canvas.height - my.y_base )/ my.height;
 
@@ -219,12 +219,12 @@ function init(){(function gorobots(my){
 
             my.ctx.beginPath();
             my.ctx.fillStyle = white;
-            my.ctx.arc(robot.position.x * x_scale, robot.position.y * y_scale + my.y_base, 200, 0, 2 * Math.PI, false);
+            my.ctx.arc(robot.position.x * x_scale, robot.position.y * y_scale + my.y_base, robot.stats.scanner_radius, 0, 2 * Math.PI, false);
             my.ctx.fill();
 
             my.ctx.save();
             my.ctx.beginPath();
-            my.ctx.arc(robot.position.x * x_scale, robot.position.y * y_scale + my.y_base, 200, 0, 2 * Math.PI, false);
+            my.ctx.arc(robot.position.x * x_scale, robot.position.y * y_scale + my.y_base, robot.stats.scanner_radius, 0, 2 * Math.PI, false);
             my.ctx.clip();
         }
     };
@@ -314,6 +314,7 @@ function init(){(function gorobots(my){
                 "stats": robot.setup(map),
                 "id": my.id
             };
+            console.log(config);
             var sent_ok = my.websocket.send(JSON.stringify(config));
             if (true){
                 if (sent_ok)

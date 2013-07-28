@@ -12,13 +12,15 @@ import (
 
 var addr = flag.String("addr", ":8666", "http service address")
 var velocity = flag.Float64("velocity", 30, "")
-var delta = flag.Float64("delta", 0.1, "")
+var delta = flag.Float64("delta", 0.033, "")
 var tick = flag.Int("tick", 33, "")
 var weapon_radius = flag.Int("weapon_radius", 35, "")
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	flag.Parse()
+
+	*delta = float64(*tick) / 1000
 
 	http.Handle("/ws/", websocket.Handler(addPlayer))
 
@@ -44,6 +46,12 @@ func addPlayer(ws *websocket.Conn) {
 	}
 	p := &player{
 		Robot: robot{
+			Stats: stats{
+				Speed:         *velocity,
+				Hp:            200,
+				WeaponRadius:  35,
+				ScannerRadius: 200,
+			},
 			Position: start_pos,
 			MoveTo:   start_pos,
 			Id:       id,

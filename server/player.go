@@ -4,6 +4,7 @@ import (
 	"code.google.com/p/go.net/websocket"
 	"log"
 	"math"
+	"math/rand"
 )
 
 type payload struct {
@@ -22,6 +23,7 @@ type player struct {
 type instruction struct {
 	MoveTo position `json:"move_to"`
 	FireAt position `json:"fire_at"`
+	Stats  stats    `json:"stats"`
 }
 
 func (p *player) sender() {
@@ -43,8 +45,17 @@ func (p *player) recv() {
 			log.Print(err)
 			break
 		}
-		p.Robot.MoveTo = msg.MoveTo
-		p.Robot.FireAt = msg.FireAt
+		if msg.MoveTo.X != 0 && msg.MoveTo.Y != 0 {
+			p.Robot.MoveTo = msg.MoveTo
+		}
+		if msg.FireAt.X != 0 && msg.FireAt.Y != 0 {
+			p.Robot.FireAt = msg.FireAt
+		}
+		if msg.Stats.Speed > 0 {
+			p.Robot.Stats = msg.Stats
+			p.Robot.Health = p.Robot.Stats.Hp
+			log.Printf("%+v", p.Robot.Stats)
+		}
 	}
 	p.ws.Close()
 }
@@ -94,7 +105,7 @@ func move(d1, d2 position, velocity float64, timeDelta float64) position {
 }
 
 func (p *player) nudge() {
-	newPos := move(p.Robot.Position, p.Robot.MoveTo, *velocity, *delta)
+	newPos := move(p.Robot.Position, p.Robot.MoveTo, p.Robot.Stats.Speed, *delta)
 	p.Robot.Position.X = newPos.X
 	p.Robot.Position.Y = newPos.Y
 }
@@ -106,7 +117,7 @@ func (p *player) scan() {
 			continue
 		}
 		dist := distance(player.Robot.Position, p.Robot.Position)
-		if dist < 200.0 {
+		if dist < float64(p.Robot.Stats.ScannerRadius) {
 			s := scanner{
 				Position: position{
 					X: player.Robot.Position.X,
@@ -146,7 +157,7 @@ func (p *projectile) nudge() {
 		splo := &splosion{
 			Id:        p.Id,
 			Position:  p.Position,
-			Radius:    *weapon_radius,
+			Radius:    p.Radius,
 			MaxDamage: 10,
 			MinDamage: 5,
 			Lifespan:  8,
@@ -155,7 +166,7 @@ func (p *projectile) nudge() {
 
 		for player := range g.players {
 			dist := distance(player.Robot.Position, p.Position)
-			if dist < float64(*weapon_radius) {
+			if dist < float64(p.Radius) {
 
 				// TODO map damage Max to Min based on distance from explosion
 				if player.Robot.Health > 0 {
@@ -187,6 +198,17 @@ func (p *player) fire() {
 		Position: p.Robot.Position,
 		MoveTo:   p.Robot.FireAt,
 		Damage:   10,
+		Radius:   p.Robot.Stats.WeaponRadius,
 	}
 	g.projectiles[proj] = true
+}
+
+func (p *player) reset() {
+	start_pos := position{
+		X: rand.Float64() * 800,
+		Y: rand.Float64() * 550,
+	}
+	p.Robot.MoveTo = start_pos
+	p.Robot.Position = start_pos
+	p.Robot.Health = p.Robot.Stats.Hp
 }
