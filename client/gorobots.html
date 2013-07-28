@@ -26,8 +26,17 @@
     <body>
   </head>
   <body id='body' onload="init();">
-    <pre id="editor">function robot(data, map){
+    <pre id="editor">function robot(){
+    var setup = function(map){
+        return {
+            "health": 100,
+            "speed": 20,
+            "weapon_radius": 10,
+            "scanners": 30
+        }
+    }
 
+    var update = function(data, map){
         //console.log(data, map);
         var instructions = {};
         var x,y;
@@ -39,7 +48,6 @@
                 Math.abs(data.position.y - data.move_to.y) < 3){
                 x = Math.floor(Math.random() * map.width);
                 y = Math.floor(Math.random() * map.height);
-                console.log("X: " + x + ", Y: " + y);
                 instructions.move_to = {"x": x, "y": y};
                 instructions.fire_at = {"x": Math.floor(Math.random() * map.width), "y": Math.floor(Math.random() * map.height)};
             }
@@ -61,6 +69,12 @@
         }
         return instructions;
     }
+
+    return {
+        "update": update,
+        "setup": setup,
+    }
+}
     </pre>
 
     <canvas id="battlefield"></canvas>

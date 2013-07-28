@@ -68,9 +68,6 @@ function init(){(function gorobots(my){
 
         connection.onopen = function(){
             console.log("Connected to " + server);
-
-            // Handshake with the server
-            // connection.send(JSON.stringify({'move_to':{"x": 0, "y":0}}));
         };
 
         connection.onclose = function(){
@@ -90,9 +87,10 @@ function init(){(function gorobots(my){
             if ('id' in new_data){
 
                 // This is the handshake response, we've been assigned
-                // and ID and are in the game.
+                // an ID and are in the game.
                 my.id = new_data['id'];
                 console.log("Assigned ID " + my.id + " by server");
+                my.setup_robot();
             }
 
             my.process_packet(new_data);
@@ -244,23 +242,50 @@ function init(){(function gorobots(my){
         return theResult;
     };
 
-    my.update_robot = function(data){
+    my.get_robot_code = function(){
         var robot_code = editor.getSession().getValue();
         var output = document.getElementById('output');
 
         var code = "( " + robot_code + " )";
         var rc = my.eval_input(code, output);
 
-        var map = {"width": my.width, "height": my.height};
-        var out = rc.call(this, data, map);
+        return rc.call(this);
+    };
 
-        out['id'] = my.id;
+    my.setup_robot = function(){
+        var robot = my.get_robot_code();
+        console.log(robot);
+        if ('setup' in robot){
+            var map = {"width": my.width, "height": my.height};
+            var config = {
+                "stats": robot.setup(map),
+                "id": my.id
+            };
+            var sent_ok = my.websocket.send(JSON.stringify(config));
+            if (true){
+                if (sent_ok)
+                    console.log("SENT CONFIG: " + JSON.stringify(config));
+                else
+                    console.log("ERROR SENDING CONFIG TO SERVER");
+            }
+        }
+    };
+
+    my.update_robot = function(data){
+        var robot = my.get_robot_code();
+        var map = {"width": my.width, "height": my.height};
+
+        var instructions = null;
+        if ('update' in robot){
+            instructions = robot.update(data, map);
+        }
+        instructions['id'] = my.id;
 
         if (my.websocket){
-            var sent_ok = my.websocket.send(JSON.stringify(out));
+            var sent_ok = my.websocket.send(JSON.stringify(instructions));
             if (my.debug){
                 if (sent_ok)
-                    console.log("SENT: " + JSON.stringify(out));
+                    console.log("SENT: " + JSON.stringify(instructions));
                 else
                     console.log("ERROR SENDING TO SERVER");
             }
