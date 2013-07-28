@@ -119,8 +119,12 @@ function init(){(function gorobots(my){
             }
 
             for (i=0; i < robots.length; i++){
-                players += ("&nbsp&nbsp" + robots[i]['id'] +
-                    " [" + robots[i]['health'] + "]");
+                var col = colors[i+1];
+                if (robots[i].health === 0){
+                    col = colors[0];
+                }
+                players += ("<span style='color: " + col + ";'>&nbsp&nbsp" + robots[i]['id'] +
+                    " [" + robots[i]['health'] + "]</span>");
 
                 if (my.debug)
                     console.log(JSON.stringify(robots[i]));
