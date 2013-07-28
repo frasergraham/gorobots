@@ -102,7 +102,7 @@ func (p *player) nudge() {
 func (p *player) scan() {
 	p.Robot.Scanners = make([]scanner, 0)
 	for player := range g.players {
-		if player.Robot.Id == p.Robot.Id {
+		if player.Robot.Id == p.Robot.Id || player.Robot.Health <= 0 {
 			continue
 		}
 		dist := distance(player.Robot.Position, p.Robot.Position)
