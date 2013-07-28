@@ -128,8 +128,13 @@ func (p *projectile) nudge() {
 			if dist < float64(*weapon_radius) {
 
 				// TODO map damage Max to Min based on distance from explosion
-				player.Robot.Health -= p.Damage
-				log.Printf("Robot %+v is injured", player.Robot)
+				if player.Robot.Health > 0 {
+					player.Robot.Health -= p.Damage
+					log.Printf("Robot %+v is injured", player.Robot)
+					if player.Robot.Health <= 0 {
+						log.Printf("Robot %+v is dead", player.Robot)
+					}
+				}
 			}
 		}
 	}

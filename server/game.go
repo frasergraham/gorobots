@@ -65,9 +65,11 @@ func (g *game) run() {
 			payload.Projectiles = []projectile{}
 
 			for p := range g.players {
-				p.nudge()
-				if p.Robot.FireAt.X != 0 && p.Robot.FireAt.Y != 0 {
-					p.fire()
+				if p.Robot.Health > 0 {
+					p.nudge()
+					if p.Robot.FireAt.X != 0 && p.Robot.FireAt.Y != 0 {
+						p.fire()
+					}
 				}
 				payload.Robots = append(payload.Robots, p.Robot)
 			}
@@ -84,7 +86,6 @@ func (g *game) run() {
 			}
 
 			for p := range g.players {
-				// log.Printf("%+v", payload)
 				p.send <- &payload
 			}
 		}

@@ -38,7 +38,7 @@ func addPlayer(ws *websocket.Conn) {
 		log.Fatal(err)
 	}
 	p := &player{
-		Robot: robot{Id: id, Health: 100},
+		Robot: robot{Id: id, Health: 200},
 		send:  make(chan *payload),
 		ws:    ws,
 	}
