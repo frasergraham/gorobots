@@ -18,6 +18,8 @@ function init(){(function gorobots(my){
     my.debug = false;
     my.debug_draw = true;
 
+    var grey = "rgba(0, 0, 0, 0.1)";
+    var white = "rgba(255, 255, 255, 1)";
     var colors = [
         "rgba(0, 0, 0, 0.5)",       // Grey
         "rgba(0, 0, 200, 0.5)",
@@ -122,13 +124,19 @@ function init(){(function gorobots(my){
 
         my.clear();
 
-        if (my.debug_draw){
-            var slowest = Math.max.apply(null, my.delta_history);
-            var debug_string = slowest + "ms" + "    " + my.server;
-            my.ctx.fillStyle = colors[0];
-            my.ctx.font="12px Helvetica";
-            my.ctx.fillText(debug_string,2,12);
-        }
+        // Status Bar Text
+        var slowest = Math.max.apply(null, my.delta_history);
+        var debug_string = slowest + "ms" + "    " + my.server;
+        my.ctx.fillStyle = colors[0];
+        my.ctx.font="12px Helvetica";
+        my.ctx.fillText(debug_string,2,12);
+
+        // Status Bar Line
+        my.ctx.beginPath();
+        my.ctx.moveTo(0, my.y_base);
+        my.ctx.strokeStyle = colors[0];
+        my.ctx.lineTo(my.width, my.y_base);
+        my.ctx.stroke();
 
         my.ctx.save();
         my.ctx.beginPath();
@@ -196,12 +204,6 @@ function init(){(function gorobots(my){
             }
         }
 
-        my.ctx.beginPath();
-        my.ctx.moveTo(0, my.y_base);
-        my.ctx.strokeStyle = colors[0];
-        my.ctx.lineTo(my.width, my.y_base);
-        my.ctx.stroke();
-
         // Set the list of players
         var players_div = document.getElementById("players");
         players_div.innerHTML = players;
@@ -209,9 +211,20 @@ function init(){(function gorobots(my){
 
     my.clip = function(robot){
         if (!my.observe_only){
+            var x_scale = my.ctx.canvas.width / my.width;
+            var y_scale = (my.ctx.canvas.height - my.y_base )/ my.height;
+
+            my.ctx.fillStyle = grey;
+            my.ctx.fillRect (0, 0+my.y_base, my.width, my.height);
+
+            my.ctx.beginPath();
+            my.ctx.fillStyle = white;
+            my.ctx.arc(robot.position.x * x_scale, robot.position.y * y_scale + my.y_base, 200, 0, 2 * Math.PI, false);
+            my.ctx.fill();
+
             my.ctx.save();
             my.ctx.beginPath();
-            my.ctx.arc(robot.position.x, robot.position.y, 200, 0, 2 * Math.PI, false);
+            my.ctx.arc(robot.position.x * x_scale, robot.position.y * y_scale + my.y_base, 200, 0, 2 * Math.PI, false);
             my.ctx.clip();
         }
     };
