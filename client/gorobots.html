@@ -25,7 +25,7 @@
     </head>
     <body>
   </head>
-  <body onload="init();">
+  <body id='body' onload="init();">
     <h3>GOBOTS</h3>
 
     <pre id="editor">function robot(data, map){
@@ -34,36 +34,34 @@
         var instructions = {};
         var x,y;
         if (data && 'move_to' in data){
-            x = data['move_to']['x'];
-            y = data['move_to']['y'];
+            x = data.move_to.x;
+            y = data.move_to.y;
 
-            if (Math.abs(data['position']['x'] - data['move_to']['x']) < 3 &&
-                Math.abs(data['position']['y'] - data['move_to']['y']) < 3){
-                x = Math.floor(Math.random() * map['width']);
-                y = Math.floor(Math.random() * map['height']);
+            if (Math.abs(data.position.x - data.move_to.x) < 3 &&
+                Math.abs(data.position.y - data.move_to.y) < 3){
+                x = Math.floor(Math.random() * map.width);
+                y = Math.floor(Math.random() * map.height);
                 console.log("X: " + x + ", Y: " + y);
-                instructions['move_to'] = {"x": x, "y": y};
-                instructions['fire_at'] = {"x": 100, "y": 100};
+                instructions.move_to = {"x": x, "y": y};
+                instructions.fire_at = {"x": 100, "y": 100};
             }
             else{
-                instructions['move_to'] = {"x": x, "y": y};
+                instructions.move_to = {"x": x, "y": y};
             }
         }
         else{
-            x = Math.floor(Math.random() * map['width']);
-            y = Math.floor(Math.random() * map['height']);
-            instructions['move_to'] = {"x": x, "y": y};
+            x = Math.floor(Math.random() * map.width);
+            y = Math.floor(Math.random() * map.height);
+            instructions.move_to = {"x": x, "y": y};
         }
-
 
         return instructions;
     }
     </pre>
 
-    <canvas id="tutorial" width="800" height="550"></canvas>
+    <canvas id="battlefield" width="800" height="550"></canvas>
 
-
-    <a href="#" onclick="eval_robot();">Check Code</a>
+    <a href="#" id="check_code" onclick="eval_robot();">Check Code</a>
     <pre id="players"></pre>
     <div id="output"></div>
 
