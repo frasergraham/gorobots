@@ -119,7 +119,8 @@ function init(){(function gorobots(my){
             }
 
             for (i=0; i < robots.length; i++){
-                players += "&nbsp&nbsp" + robots[i]['id'];
+                players += ("&nbsp&nbsp" + robots[i]['id'] +
+                    " [" + robots[i]['health'] + "]");
 
                 if (my.debug)
                     console.log(JSON.stringify(robots[i]));
