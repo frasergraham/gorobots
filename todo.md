@@ -1,5 +1,8 @@
 # TODO List
 
+# general
+* time matches
+
 ## Client
 * Debug draw on robots
 * Set Robot properties, have way to validate
@@ -36,6 +39,5 @@ Maybe...
 ## Server
 * add ids to turns
 * keep track of who gets a response in, and only send state to those clients
-
-
-* create the player on ws connect but dont create the robot untikl we get a config message with it's stats
+* create the player on ws connect but dont create the robot until we get a config message with it's stats
+* balancing and validation of config settings
