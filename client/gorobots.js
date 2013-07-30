@@ -115,6 +115,15 @@ function init(){(function gorobots(my){
                 console.log("Assigned ID " + my.id + " by server");
                 my.setup_robot();
             }
+            if('success' in new_data) {
+                console.log(new_data['success']);
+                if (!new_data.success){
+                    my.connection_retry = 60000;
+                    alert("invalid config!!");
+                    my.websocket.close();
+                    return false;
+                }
+            }
 
             my.process_packet(new_data);
         };
