@@ -257,7 +257,11 @@ function init(){(function gorobots(my){
             my.ctx.fill();
         }
         else{
-            my.ctx.fillStyle = colors[index+1];
+            if (data.health > 0)
+                my.ctx.fillStyle = colors[index+1];
+            else
+                my.ctx.fillStyle = colors[0];
+
             my.ctx.fillRect (x-5, y-5, 10, 10);
 
             if (my.id == data['id'])
