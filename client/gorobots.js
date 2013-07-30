@@ -8,7 +8,7 @@ function init(){(function gorobots(my){
     my.ctx = null;
     my.observe_only = false;
     my.y_base = 16; // The top status bar
-
+    my.connection_retry = 3000;
 
     var d = new Date();
     my.last_frame_time = d.getTime();
@@ -80,13 +80,16 @@ function init(){(function gorobots(my){
         };
 
         connection.onclose = function(){
-            console.log("Lost Connection: " + server);
             my.id = null;
 
-            // Retry every few seconds
-            setTimeout(function(){
-                my.websocket = my.connect(server);
-            }, 3000);
+            if (my.connection_retry > 0){
+                // Retry every few seconds
+                console.log("Lost Connection: " + server);
+                console.log(my);
+                setTimeout(function(){
+                    my.websocket = my.connect(my.server);
+                }, my.connection_retry);
+            }
         };
 
         connection.onmessage = function (e) {
@@ -357,7 +360,7 @@ function init(){(function gorobots(my){
 
     my.init = function(){
         console.log("Welcome to GoRobots");
-        my.websocket = my.connect(my.server);
+        // my.websocket = my.connect(my.server);
         editor = ace.edit("editor");
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/javascript");
@@ -369,6 +372,25 @@ function init(){(function gorobots(my){
         document.getElementById('fov_toggle').onclick=function(){
                 my.toggle_observer();
             };
+
+        var options = decodeURIComponent(window.location.search.slice(1));
+        options = options.split('=');
+
+        if (options[0] == 'server'){
+            my.server = options[1];
+            my.websocket = my.connect(my.server);
+        }
+
+        var server_name = document.getElementById("server");
+        server_name.value = my.server;
+        var form = document.getElementById("form");
+        form.onsubmit = function(e){
+            e.preventDefault();
+            my.server = server_name.value;
+            console.log("Switching Server: " + my.server);
+            my.websocket.close();
+            return false;
+        }
 
         var canvas = document.getElementById('battlefield');
         if (canvas.getContext){
