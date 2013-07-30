@@ -4,7 +4,6 @@
 * time matches
 
 ## Client
-* Debug draw on robots
 * Set Robot properties, have way to validate
 * Messages from server:
     * X was killed etc
@@ -37,6 +36,7 @@ Maybe...
 
 
 ## Server
+* support observer only connections
 * add ids to turns
 * keep track of who gets a response in, and only send state to those clients
 * create the player on ws connect but dont create the robot until we get a config message with it's stats
