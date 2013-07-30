@@ -1,10 +1,5 @@
 package main
 
-type position struct {
-	X float64 `json:"x"`
-	Y float64 `json:"y"`
-}
-
 type weapon struct {
 	Strength float64 `json:"strength"`
 	Radius   float64 `json:"radius"`
@@ -32,6 +27,22 @@ type robot struct {
 	Scanners []scanner `json:"scanners"`
 }
 
+type robotSorter struct {
+	robots []robot
+}
+
+func (s robotSorter) Len() int {
+	return len(s.robots)
+}
+
+func (s robotSorter) Swap(i, j int) {
+	s.robots[i], s.robots[j] = s.robots[j], s.robots[i]
+}
+
+func (s robotSorter) Less(i, j int) bool {
+	return s.robots[i].Id < s.robots[j].Id
+}
+
 type projectile struct {
 	Id       string   `json:"id"`
 	Position position `json:"position"`
@@ -41,6 +52,53 @@ type projectile struct {
 	Damage   int      `json:"damage"`
 }
 
+func (p *projectile) nudge() {
+	newPos := move(p.Position, p.MoveTo, float64(p.Speed), delta)
+
+	hit_player := false
+	for player := range g.players {
+		if player.Robot.Id == p.Id {
+			continue
+		}
+		dist := distance(player.Robot.Position, p.Position)
+		if dist < 5.0 {
+			hit_player = true
+		}
+	}
+
+	if distance(p.Position, p.MoveTo) < 5 || hit_player {
+		delete(g.projectiles, p)
+
+		// Spawn a splosion
+		splo := &splosion{
+			Id:        p.Id,
+			Position:  p.Position,
+			Radius:    p.Radius,
+			MaxDamage: 10,
+			MinDamage: 5,
+			Lifespan:  8,
+		}
+		g.splosions[splo] = true
+
+		for player := range g.players {
+			dist := distance(player.Robot.Position, p.Position)
+			if dist < float64(p.Radius) {
+
+				// TODO map damage Max to Min based on distance from explosion
+				if player.Robot.Health > 0 {
+					player.Robot.Health -= p.Damage
+					// log.Printf("Robot %+v is injured", player.Robot)
+					if player.Robot.Health <= 0 {
+						// log.Printf("Robot %+v is dead", player.Robot)
+					}
+				}
+			}
+		}
+	}
+	p.Position.X = newPos.X
+	p.Position.Y = newPos.Y
+}
+
 type splosion struct {
 	Id        string   `json:"id"`
 	Position  position `json:"position"`
@@ -48,4 +106,11 @@ type splosion struct {
 	MaxDamage int      `json:"damage"`
 	MinDamage int      `json:"damage"`
 	Lifespan  int      `json:"lifespan"`
+}
+
+func (s *splosion) tick() {
+	s.Lifespan--
+	if s.Lifespan <= 0 {
+		delete(g.splosions, s)
+	}
 }

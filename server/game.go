@@ -20,29 +20,11 @@ type handshake struct {
 	ID string `json:"id"`
 }
 
-var g = game{
-	register:    make(chan *player),
-	unregister:  make(chan *player),
-	projectiles: make(map[*projectile]bool),
-	splosions:   make(map[*splosion]bool),
-	players:     make(map[*player]bool),
-	turn:        0,
-}
-
-type robotSorter struct {
-	robots []robot
-}
-
-func (s robotSorter) Len() int {
-	return len(s.robots)
-}
-
-func (s robotSorter) Swap(i, j int) {
-	s.robots[i], s.robots[j] = s.robots[j], s.robots[i]
-}
-
-func (s robotSorter) Less(i, j int) bool {
-	return s.robots[i].Id < s.robots[j].Id
+type payload struct {
+	Robots      []robot      `json:"robots"`
+	Projectiles []projectile `json:"projectiles"`
+	Splosions   []splosion   `json:"splosions"`
+	Reset       bool         `json:"reset"`
 }
 
 func (g *game) run() {

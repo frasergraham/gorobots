@@ -12,15 +12,24 @@ import (
 
 var addr = flag.String("addr", ":8666", "http service address")
 var velocity = flag.Float64("velocity", 30, "")
-var delta = flag.Float64("delta", 0.033, "")
 var tick = flag.Int("tick", 33, "")
 var weapon_radius = flag.Int("weapon_radius", 35, "")
+
+var delta float64
+var g = game{
+	register:    make(chan *player),
+	unregister:  make(chan *player),
+	projectiles: make(map[*projectile]bool),
+	splosions:   make(map[*splosion]bool),
+	players:     make(map[*player]bool),
+	turn:        0,
+}
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	flag.Parse()
 
-	*delta = float64(*tick) / 1000
+	delta = float64(*tick) / 1000
 
 	http.Handle("/ws/", websocket.Handler(addPlayer))
 
