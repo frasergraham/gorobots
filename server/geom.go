@@ -1,7 +1,7 @@
 package main
 
 import (
-    "math"
+	"math"
 )
 
 const threshold = 1e-7

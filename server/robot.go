@@ -1,5 +1,9 @@
 package main
 
+import (
+	"log"
+)
+
 type weapon struct {
 	Strength float64 `json:"strength"`
 	Radius   float64 `json:"radius"`
@@ -10,6 +14,16 @@ type stats struct {
 	Hp            int     `json:"hp"`
 	WeaponRadius  int     `json:"weapon_radius"`
 	ScannerRadius int     `json:"scanner_radius"`
+}
+
+func (s stats) valid() bool {
+	total := int(s.Speed) + s.Hp + s.WeaponRadius + s.ScannerRadius
+	log.Printf("total: %d", total)
+
+	if total > 500 {
+		return false
+	}
+	return true
 }
 
 type scanner struct {

@@ -17,7 +17,13 @@ type game struct {
 }
 
 type handshake struct {
-	ID string `json:"id"`
+	ID      string `json:"id"`
+	Success bool   `json:"success"`
+}
+
+type config struct {
+	ID    string `json:"id"`
+	Stats stats  `json:"stats"`
 }
 
 type payload struct {
@@ -46,10 +52,12 @@ func (g *game) run() {
 		case <-time.Tick(time.Duration(*tick) * time.Millisecond):
 			g.turn++
 			t0 := time.Now()
-			log.Printf("\033[2JTurn: %v", g.turn)
-			log.Printf("Players: %v", len(g.players))
-			log.Printf("Projectiles: %v", len(g.projectiles))
-			log.Printf("Explosions: %v", len(g.splosions))
+			if *verbose {
+				log.Printf("\033[2JTurn: %v", g.turn)
+				log.Printf("Players: %v", len(g.players))
+				log.Printf("Projectiles: %v", len(g.projectiles))
+				log.Printf("Explosions: %v", len(g.splosions))
+			}
 			payload := payload{}
 			payload.Robots = []robot{}
 			payload.Projectiles = []projectile{}
@@ -92,14 +100,18 @@ func (g *game) run() {
 			}
 
 			t1 := time.Now()
-			log.Printf("Turn Processes %v\n", t1.Sub(t0))
+			if *verbose {
+				log.Printf("Turn Processes %v\n", t1.Sub(t0))
+			}
 
 			for p := range g.players {
 				p.send <- &payload
 			}
 
 			t1 = time.Now()
-			log.Printf("Sent Payload %v\n", t1.Sub(t0))
+			if *verbose {
+				log.Printf("Sent Payload %v\n", t1.Sub(t0))
+			}
 
 		}
 	}
