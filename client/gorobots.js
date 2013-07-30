@@ -387,8 +387,14 @@ function init(){(function gorobots(my){
         form.onsubmit = function(e){
             e.preventDefault();
             my.server = server_name.value;
-            console.log("Switching Server: " + my.server);
-            my.websocket.close();
+            if (my.websocket){
+                console.log("Switching Server: " + my.server);
+                my.websocket.close();
+            }
+            else{
+                console.log("Setting Server: " + my.server);
+                my.websocket = my.connect(my.server);
+            }
             return false;
         }
 
