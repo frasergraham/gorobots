@@ -118,9 +118,8 @@ function init(){(function gorobots(my){
             if('success' in new_data) {
                 console.log(new_data['success']);
                 if (!new_data.success){
-                    my.connection_retry = 60000;
                     alert("invalid config!!");
-                    my.websocket.close();
+                    my.websocket = null
                     return false;
                 }
             }
