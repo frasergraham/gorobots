@@ -13,6 +13,7 @@ type game struct {
 	register    chan *player
 	unregister  chan *player
 	id          chan int
+	turn        int
 }
 
 type handshake struct {
@@ -25,6 +26,7 @@ var g = game{
 	projectiles: make(map[*projectile]bool),
 	splosions:   make(map[*splosion]bool),
 	players:     make(map[*player]bool),
+	turn:        0,
 }
 
 type robotSorter struct {
@@ -60,6 +62,12 @@ func (g *game) run() {
 			delete(g.players, p)
 			close(p.send)
 		case <-time.Tick(time.Duration(*tick) * time.Millisecond):
+			g.turn++
+			t0 := time.Now()
+			log.Printf("\033[2JTurn: %v", g.turn)
+			log.Printf("Players: %v", len(g.players))
+			log.Printf("Projectiles: %v", len(g.projectiles))
+			log.Printf("Explosions: %v", len(g.splosions))
 			payload := payload{}
 			payload.Robots = []robot{}
 			payload.Projectiles = []projectile{}
@@ -101,9 +109,15 @@ func (g *game) run() {
 				payload.Reset = false
 			}
 
+			t1 := time.Now()
+			log.Printf("Turn Processes %v\n", t1.Sub(t0))
+
 			for p := range g.players {
 				p.send <- &payload
 			}
+
+			t1 = time.Now()
+			log.Printf("Sent Payload %v\n", t1.Sub(t0))
 
 		}
 	}
