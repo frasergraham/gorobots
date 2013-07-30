@@ -1,4 +1,5 @@
 var WebSocket = require('ws');
+var fs = require('fs');
 
 var stress_test = function gorobots(my, server){
     my.width = 800;
@@ -65,6 +66,11 @@ var stress_test = function gorobots(my, server){
     };
 
     my.process_packet = function(new_data){
+        if (my.id){
+           // fs.appendFile(my.id + ".log", JSON.stringify(new_data));
+           // fs.appendFile(my.id + ".log", "\n\n\n\n\n\n\n==========\n\n\n\n\n");
+        }
+
         var players = "";
 
         if (new_data.reset){
@@ -97,6 +103,11 @@ var stress_test = function gorobots(my, server){
     };
 
     my.get_robot_code = function(){
+
+        //======================================
+        //========== ROBOT CODE ================
+        //======================================
+
         var code = function robot(){
             var setup = function(map){
                 return {
@@ -146,6 +157,10 @@ var stress_test = function gorobots(my, server){
                 "setup": setup,
             }
         }();
+
+        //======================================
+        //========== END ROBOT CODE ============
+        //======================================
 
         return code;
     };
