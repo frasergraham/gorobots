@@ -45,7 +45,7 @@ func main() {
 func addPlayer(ws *websocket.Conn) {
 	id := fmt.Sprintf("robot%d", <-g.id)
 	log.Printf("sending robot id: %s", id)
-	err := websocket.JSON.Send(ws, handshake{id, true})
+	err := websocket.JSON.Send(ws, NewHandshake(id, true))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,10 +58,10 @@ func addPlayer(ws *websocket.Conn) {
 			return
 		}
 		if conf.Stats.valid() {
-			_ = websocket.JSON.Send(ws, handshake{id, true})
+			_ = websocket.JSON.Send(ws, NewHandshake(id, true))
 			break
 		} else {
-			_ = websocket.JSON.Send(ws, handshake{id, false})
+			_ = websocket.JSON.Send(ws, NewHandshake(id, false))
 			log.Printf("%s invalid config", id)
 		}
 	}
@@ -84,7 +84,7 @@ func addPlayer(ws *websocket.Conn) {
 			Id:       id,
 			Health:   200,
 			Scanners: make([]scanner, 0)},
-		send: make(chan *payload),
+		send: make(chan *boardstate),
 		ws:   ws,
 	}
 	g.register <- p
