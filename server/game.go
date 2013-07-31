@@ -19,6 +19,15 @@ type game struct {
 type handshake struct {
 	ID      string `json:"id"`
 	Success bool   `json:"success"`
+	Type    string `json:"type"`
+}
+
+func NewHandshake(id string, success bool) *handshake {
+	return &handshake{
+		ID:      id,
+		Success: success,
+		Type:    "handshake",
+	}
 }
 
 type config struct {
@@ -26,11 +35,20 @@ type config struct {
 	Stats stats  `json:"stats"`
 }
 
-type payload struct {
+type boardstate struct {
 	Robots      []robot      `json:"robots"`
 	Projectiles []projectile `json:"projectiles"`
 	Splosions   []splosion   `json:"splosions"`
 	Reset       bool         `json:"reset"`
+	Type        string       `json:"type"`
+}
+
+func NewBoardstate() *boardstate {
+	return &boardstate{
+		Robots:      []robot{},
+		Projectiles: []projectile{},
+		Type:        "boardstate",
+	}
 }
 
 func (g *game) run() {
@@ -58,9 +76,7 @@ func (g *game) run() {
 				log.Printf("Projectiles: %v", len(g.projectiles))
 				log.Printf("Explosions: %v", len(g.splosions))
 			}
-			payload := payload{}
-			payload.Robots = []robot{}
-			payload.Projectiles = []projectile{}
+			payload := NewBoardstate()
 
 			robots_remaining := 0
 
@@ -105,7 +121,7 @@ func (g *game) run() {
 			}
 
 			for p := range g.players {
-				p.send <- &payload
+				p.send <- payload
 			}
 
 			t1 = time.Now()

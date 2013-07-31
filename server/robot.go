@@ -19,7 +19,6 @@ type stats struct {
 func (s stats) valid() bool {
 	total := int(s.Speed) + s.Hp + s.WeaponRadius + s.ScannerRadius
 	log.Printf("total: %d", total)
-
 	if total > 500 {
 		return false
 	}

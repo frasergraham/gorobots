@@ -9,7 +9,7 @@ import (
 type player struct {
 	ws          *websocket.Conn
 	Robot       robot
-	send        chan *payload
+	send        chan *boardstate
 	Instruction instruction
 }
 
