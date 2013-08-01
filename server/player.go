@@ -9,13 +9,13 @@ import (
 type player struct {
 	ws          *websocket.Conn
 	Robot       robot
-	send        chan *payload
+	send        chan *boardstate
 	Instruction instruction
 }
 
 type instruction struct {
-	MoveTo position `json:"move_to"`
-	FireAt position `json:"fire_at"`
+	MoveTo *position `json:"move_to,omitempty"`
+	FireAt *position `json:"fire_at,omitempty"`
 	Stats  stats    `json:"stats"`
 }
 
@@ -38,11 +38,11 @@ func (p *player) recv() {
 			log.Print(err)
 			break
 		}
-		if msg.MoveTo.X != 0 && msg.MoveTo.Y != 0 {
-			p.Robot.MoveTo = msg.MoveTo
+		if msg.MoveTo != nil {
+			p.Robot.MoveTo = *msg.MoveTo
 		}
-		if msg.FireAt.X != 0 && msg.FireAt.Y != 0 {
-			p.Robot.FireAt = msg.FireAt
+		if msg.FireAt != nil {
+			p.Robot.FireAt = *msg.FireAt
 		}
 		if msg.Stats.Speed > 0 {
 			p.Robot.Stats = msg.Stats

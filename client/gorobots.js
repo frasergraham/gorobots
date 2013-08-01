@@ -93,7 +93,6 @@ function init(){(function gorobots(my){
         };
 
         connection.onmessage = function (e) {
-
             var d = new Date();
             var time = d.getTime();
             my.delta = time - my.last_frame_time;
@@ -107,16 +106,29 @@ function init(){(function gorobots(my){
             // console.log(e.data);
             new_data = JSON.parse(e.data);
 
-            if ('id' in new_data){
-
-                // This is the handshake response, we've been assigned
-                // an ID and are in the game.
-                my.id = new_data['id'];
-                console.log("Assigned ID " + my.id + " by server");
-                my.setup_robot();
+            // new_data.type is the convention we use to route writes to our
+            // websocket
+            if (new_data.type == "handshake") {
+                // This is the handshake response, we've been assigned an ID
+                // and are in the game (or TODO: in a lobby).
+                console.log("setting up game");
+                if('success' in new_data) {
+                    console.log(new_data['success']);
+                    if (!new_data.success){
+                        alert("invalid config!!");
+                        return false;
+                    }
+                }
+                if ('id' in new_data){
+                    my.id = new_data['id'];
+                    console.log("Assigned ID " + my.id + " by server");
+                    my.setup_robot();
+                } else {
+                    console.log("server failed to send us an id")
+                }
+            } else if (new_data.type == "boardstate") {
+                my.process_packet(new_data);
             }
-
-            my.process_packet(new_data);
         };
 
         return connection;
