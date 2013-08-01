@@ -395,6 +395,8 @@ function init(){(function gorobots(my){
                 console.log("Setting Server: " + my.server);
                 my.websocket = my.connect(my.server);
             }
+
+            history.pushState(null, null, 'gorobots.html?server=' + my.server);
             return false;
         }
 
