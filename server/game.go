@@ -41,13 +41,15 @@ type boardstate struct {
 	Splosions   []splosion   `json:"splosions"`
 	Reset       bool         `json:"reset"`
 	Type        string       `json:"type"`
+	Turn        int          `json:"turn"`
 }
 
-func NewBoardstate() *boardstate {
+func NewBoardstate(id int) *boardstate {
 	return &boardstate{
 		Robots:      []robot{},
 		Projectiles: []projectile{},
 		Type:        "boardstate",
+		Turn:          id,
 	}
 }
 
@@ -76,7 +78,7 @@ func (g *game) run() {
 				log.Printf("Projectiles: %v", len(g.projectiles))
 				log.Printf("Explosions: %v", len(g.splosions))
 			}
-			payload := NewBoardstate()
+			payload := NewBoardstate(g.turn)
 
 			robots_remaining := 0
 
