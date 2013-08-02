@@ -14,6 +14,7 @@ var addr = flag.String("addr", ":8666", "http service address")
 var velocity = flag.Float64("velocity", 30, "")
 var tick = flag.Int("tick", 33, "")
 var weapon_radius = flag.Int("weapon_radius", 35, "")
+var verbose = flag.Bool("verbose", false, "")
 
 var delta float64
 var g = game{
@@ -44,10 +45,27 @@ func main() {
 func addPlayer(ws *websocket.Conn) {
 	id := fmt.Sprintf("robot%d", <-g.id)
 	log.Printf("sending robot id: %s", id)
-	err := websocket.JSON.Send(ws, handshake{id})
+	err := websocket.JSON.Send(ws, NewHandshake(id, true))
 	if err != nil {
 		log.Fatal(err)
 	}
+	var conf config
+
+	for {
+		err = websocket.JSON.Receive(ws, &conf)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		if conf.Stats.valid() {
+			_ = websocket.JSON.Send(ws, NewHandshake(id, true))
+			break
+		} else {
+			_ = websocket.JSON.Send(ws, NewHandshake(id, false))
+			log.Printf("%s invalid config", id)
+		}
+	}
+	log.Printf("%s eventually sent valid config", id)
 
 	start_pos := position{
 		X: rand.Float64() * 800,
@@ -66,7 +84,7 @@ func addPlayer(ws *websocket.Conn) {
 			Id:       id,
 			Health:   200,
 			Scanners: make([]scanner, 0)},
-		send: make(chan *payload),
+		send: make(chan *boardstate),
 		ws:   ws,
 	}
 	g.register <- p
