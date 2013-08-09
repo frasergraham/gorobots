@@ -49,7 +49,7 @@ func NewBoardstate(id int) *boardstate {
 		Robots:      []robot{},
 		Projectiles: []projectile{},
 		Type:        "boardstate",
-		Turn:          id,
+		Turn:        id,
 	}
 }
 

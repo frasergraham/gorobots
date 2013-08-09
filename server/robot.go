@@ -1,6 +1,7 @@
 package main
 
 import (
+	v "github.com/frasergraham/govector2d"
 	"log"
 )
 
@@ -26,17 +27,17 @@ func (s stats) valid() bool {
 }
 
 type scanner struct {
-	Position position `json:"position"`
-	Stats    stats    `json:"stats"`
+	Position v.Point2d `json:"position"`
+	Stats    stats     `json:"stats"`
 }
 
 type robot struct {
 	Id       string    `json:"id"`
 	Stats    stats     `json:"stats"`
 	Health   int       `json:"health"`
-	Position position  `json:"position"`
-	MoveTo   position  `json:"move_to"`
-	FireAt   position  `json:"fire_at"`
+	Position v.Point2d `json:"position"`
+	MoveTo   v.Point2d `json:"move_to"`
+	FireAt   v.Point2d `json:"fire_at"`
 	Scanners []scanner `json:"scanners"`
 }
 
@@ -57,12 +58,12 @@ func (s robotSorter) Less(i, j int) bool {
 }
 
 type projectile struct {
-	Id       string   `json:"id"`
-	Position position `json:"position"`
-	MoveTo   position `json:"move_to"`
-	Radius   int      `json:"radius"`
-	Speed    float64  `json:"speed"`
-	Damage   int      `json:"damage"`
+	Id       string    `json:"id"`
+	Position v.Point2d `json:"position"`
+	MoveTo   v.Point2d `json:"move_to"`
+	Radius   int       `json:"radius"`
+	Speed    float64   `json:"speed"`
+	Damage   int       `json:"damage"`
 }
 
 func (p *projectile) nudge() {
@@ -113,12 +114,12 @@ func (p *projectile) nudge() {
 }
 
 type splosion struct {
-	Id        string   `json:"id"`
-	Position  position `json:"position"`
-	Radius    int      `json:"radius"`
-	MaxDamage int      `json:"damage"`
-	MinDamage int      `json:"damage"`
-	Lifespan  int      `json:"lifespan"`
+	Id        string    `json:"id"`
+	Position  v.Point2d `json:"position"`
+	Radius    int       `json:"radius"`
+	MaxDamage int       `json:"damage"`
+	MinDamage int       `json:"damage"`
+	Lifespan  int       `json:"lifespan"`
 }
 
 func (s *splosion) tick() {

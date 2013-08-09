@@ -4,6 +4,7 @@ import (
 	"code.google.com/p/go.net/websocket"
 	"flag"
 	"fmt"
+	v "github.com/frasergraham/govector2d"
 	"log"
 	"math/rand"
 	"net/http"
@@ -67,7 +68,7 @@ func addPlayer(ws *websocket.Conn) {
 	}
 	log.Printf("%s eventually sent valid config", id)
 
-	start_pos := position{
+	start_pos := v.Point2d{
 		X: rand.Float64() * 800,
 		Y: rand.Float64() * 550,
 	}

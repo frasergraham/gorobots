@@ -2,6 +2,7 @@ package main
 
 import (
 	"code.google.com/p/go.net/websocket"
+	v "github.com/frasergraham/govector2d"
 	"log"
 	"math/rand"
 )
@@ -14,14 +15,14 @@ type player struct {
 }
 
 type instruction struct {
-	MoveTo *position `json:"move_to,omitempty"`
-	FireAt *position `json:"fire_at,omitempty"`
-	Stats  stats    `json:"stats"`
+	MoveTo *v.Point2d `json:"move_to,omitempty"`
+	FireAt *v.Point2d `json:"fire_at,omitempty"`
+	Stats  stats      `json:"stats"`
 }
 
 func (p *player) sender() {
 	for things := range p.send {
-
+		// log.Printf("%v\n", things)
 		err := websocket.JSON.Send(p.ws, *things)
 		if err != nil {
 			break
@@ -68,7 +69,7 @@ func (p *player) scan() {
 		dist := distance(player.Robot.Position, p.Robot.Position)
 		if dist < float64(p.Robot.Stats.ScannerRadius) {
 			s := scanner{
-				Position: position{
+				Position: v.Point2d{
 					X: player.Robot.Position.X,
 					Y: player.Robot.Position.Y,
 				},
@@ -100,7 +101,7 @@ func (p *player) fire() {
 }
 
 func (p *player) reset() {
-	start_pos := position{
+	start_pos := v.Point2d{
 		X: rand.Float64() * 800,
 		Y: rand.Float64() * 550,
 	}
