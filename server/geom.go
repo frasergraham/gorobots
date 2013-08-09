@@ -2,7 +2,6 @@ package main
 
 import (
 	v "github.com/frasergraham/govector2d"
-	"log"
 )
 
 const threshold = 1e-7
