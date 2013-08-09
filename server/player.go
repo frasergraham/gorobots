@@ -16,7 +16,7 @@ type player struct {
 type instruction struct {
 	MoveTo *position `json:"move_to,omitempty"`
 	FireAt *position `json:"fire_at,omitempty"`
-	Stats  stats    `json:"stats"`
+	Stats  stats     `json:"stats"`
 }
 
 func (p *player) sender() {

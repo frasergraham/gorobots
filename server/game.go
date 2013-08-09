@@ -16,20 +16,6 @@ type game struct {
 	turn        int
 }
 
-type handshake struct {
-	ID      string `json:"id"`
-	Success bool   `json:"success"`
-	Type    string `json:"type"`
-}
-
-func NewHandshake(id string, success bool) *handshake {
-	return &handshake{
-		ID:      id,
-		Success: success,
-		Type:    "handshake",
-	}
-}
-
 type config struct {
 	ID    string `json:"id"`
 	Stats stats  `json:"stats"`
@@ -49,7 +35,7 @@ func NewBoardstate(id int) *boardstate {
 		Robots:      []robot{},
 		Projectiles: []projectile{},
 		Type:        "boardstate",
-		Turn:          id,
+		Turn:        id,
 	}
 }
 
