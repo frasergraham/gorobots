@@ -66,21 +66,23 @@ func addPlayer(ws *websocket.Conn) {
 		websocket.JSON.Send(ws, protocol.NewFailure("could not parse id"))
 		return
 	}
-	if !clientid.Valid() {
+	if v, msg := clientid.Valid(); !v {
 		log.Println("%s: invalid clientid", id)
 		websocket.JSON.Send(
 			ws,
-			protocol.NewFailure("your clientid was invalid"),
+			protocol.NewFailure(msg),
 		)
 		return
 	}
-
-	err = websocket.JSON.Send(ws, protocol.NewHandshake(id, true))
+	gameParam := protocol.NewGameParam(*width, *height)
+	err = websocket.JSON.Send(ws, gameParam)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("%s: problem sending game info: %+v", id, gameParam)
+		websocket.JSON.Send(ws, protocol.NewFailure("generic server error"))
+		return
 	}
-	var conf config
 
+	var conf config
 	for {
 		err = websocket.JSON.Receive(ws, &conf)
 		if err != nil {

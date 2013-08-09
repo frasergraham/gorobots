@@ -19,12 +19,33 @@ type ClientID struct {
 	Useragent   string `json:"useragent"`
 }
 
-func (c *ClientID) Valid() bool {
+func (c *ClientID) Valid() (bool, string) {
 	switch c.Useragent {
 	case "robot", "spectator":
-		return true
+		return true, ""
 	}
-	return false
+	return false, "usergent must be 'robot' or 'spectator'"
+}
+
+type BoardSize struct {
+	Width  float64 `json:"width"`
+	Height float64 `json:"height"`
+}
+
+type GameParam struct {
+	BoardSize BoardSize `json:"boardsize"`
+	Type      string    `json:"type"`
+}
+
+// > [OK | FULL | NOT AUTH], board size, game params
+func NewGameParam(w, h float64) *GameParam {
+	return &GameParam{
+		BoardSize: BoardSize{
+			Width:  w,
+			Height: h,
+		},
+		Type: "gameparam",
+	}
 }
 
 type Handshake struct {
