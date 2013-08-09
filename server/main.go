@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	v "github.com/frasergraham/govector2d"
+	"github.com/frasergraham/gorobots/server/protocol"
 	"log"
 	"math/rand"
 	"net/http"
@@ -16,6 +17,8 @@ var velocity = flag.Float64("velocity", 30, "")
 var tick = flag.Int("tick", 33, "")
 var weapon_radius = flag.Int("weapon_radius", 35, "")
 var verbose = flag.Bool("verbose", false, "")
+var width = flag.Float64("width", 800, "width of field")
+var height = flag.Float64("height", 550, "height of field")
 
 var delta float64
 var g = game{
@@ -44,9 +47,35 @@ func main() {
 }
 
 func addPlayer(ws *websocket.Conn) {
+	var err error
+
 	id := fmt.Sprintf("robot%d", <-g.id)
 	log.Printf("sending robot id: %s", id)
-	err := websocket.JSON.Send(ws, NewHandshake(id, true))
+
+	err = websocket.JSON.Send(ws, protocol.NewIdRequest())
+	if err != nil {
+		log.Printf("%s: problem sending initial identification", id)
+		websocket.JSON.Send(ws, protocol.NewFailure("generic server error"))
+		return
+	}
+
+	var clientid protocol.ClientID
+	err = websocket.JSON.Receive(ws, &clientid)
+	if err != nil {
+		log.Println("%s: problem parsing clientID", id)
+		websocket.JSON.Send(ws, protocol.NewFailure("could not parse id"))
+		return
+	}
+	if !clientid.Valid() {
+		log.Println("%s: invalid clientid", id)
+		websocket.JSON.Send(
+			ws,
+			protocol.NewFailure("your clientid was invalid"),
+		)
+		return
+	}
+
+	err = websocket.JSON.Send(ws, protocol.NewHandshake(id, true))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,18 +88,24 @@ func addPlayer(ws *websocket.Conn) {
 			return
 		}
 		if conf.Stats.valid() {
-			_ = websocket.JSON.Send(ws, NewHandshake(id, true))
+			_ = websocket.JSON.Send(ws, protocol.NewHandshake(id, true))
 			break
 		} else {
-			_ = websocket.JSON.Send(ws, NewHandshake(id, false))
+			_ = websocket.JSON.Send(ws, protocol.NewHandshake(id, false))
 			log.Printf("%s invalid config", id)
 		}
 	}
 	log.Printf("%s eventually sent valid config", id)
 
+<<<<<<< HEAD
 	start_pos := v.Point2d{
 		X: rand.Float64() * 800,
 		Y: rand.Float64() * 550,
+=======
+	start_pos := position{
+		X: rand.Float64() * *width,
+		Y: rand.Float64() * *height,
+>>>>>>> cf52eab230faf22c66b8a9e6b306dc0ea972ae14
 	}
 	p := &player{
 		Robot: robot{
