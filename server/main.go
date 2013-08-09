@@ -15,6 +15,8 @@ var velocity = flag.Float64("velocity", 30, "")
 var tick = flag.Int("tick", 33, "")
 var weapon_radius = flag.Int("weapon_radius", 35, "")
 var verbose = flag.Bool("verbose", false, "")
+var width = flag.Float64("width", 800, "width of field")
+var height = flag.Float64("height", 550, "height of field")
 
 var delta float64
 var g = game{
@@ -68,8 +70,8 @@ func addPlayer(ws *websocket.Conn) {
 	log.Printf("%s eventually sent valid config", id)
 
 	start_pos := position{
-		X: rand.Float64() * 800,
-		Y: rand.Float64() * 550,
+		X: rand.Float64() * *width,
+		Y: rand.Float64() * *height,
 	}
 	p := &player{
 		Robot: robot{
