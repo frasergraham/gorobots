@@ -1,6 +1,9 @@
 package protocol
 
-import "testing"
+import (
+	"encoding/json"
+	"testing"
+)
 
 type result struct {
 	b   bool
@@ -12,9 +15,9 @@ type clientIDTest struct {
 }
 
 var clientIDTests = []clientIDTest{
-	{ClientID{Useragent: "robot"}, result{true, ""}},
-	{ClientID{Useragent: "spectator"}, result{true, ""}},
-	{ClientID{Useragent: "schmarglenoggler"}, result{false, "usergent must be 'robot' or 'spectator'"}},
+	{ClientID{Type: "robot"}, result{true, ""}},
+	{ClientID{Type: "spectator"}, result{true, ""}},
+	{ClientID{Type: "schmarglenoggler"}, result{false, "usergent must be 'robot' or 'spectator'"}},
 }
 
 func TestClientIDs(t *testing.T) {
@@ -24,5 +27,19 @@ func TestClientIDs(t *testing.T) {
 		if actual.b != tt.expected.b || actual.msg != tt.expected.msg {
 			t.Errorf("%+v: expected %v, actual %v", tt.clientid, tt.expected, actual)
 		}
+	}
+}
+
+func TestClientIDParse(t *testing.T) {
+	var s ClientID
+    err := json.Unmarshal(
+		[]byte(`{
+            "type": "robot",
+            "name": "dummy",
+            "id": "24601",
+            "useragent": "gorobots.js"
+        }`), &s)
+	if err != nil {
+        t.Errorf("fail to parse: %v", err)
 	}
 }

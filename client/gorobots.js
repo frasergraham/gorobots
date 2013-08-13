@@ -1,6 +1,6 @@
 function init(){(function gorobots(my){
-    my.width = 800;
-    my.height = 550;
+    my.width = null;
+    my.height = null;
     my.server = "ws://twisted.local:8666/ws/";
     // my.server = "ws://rs.mcquay.me:8666/ws/";
     my.websocket = null;
@@ -9,6 +9,7 @@ function init(){(function gorobots(my){
     my.observe_only = false;
     my.y_base = 16; // The top status bar
     my.connection_retry = 3000;
+    my.state = null;
 
     var d = new Date();
     my.last_frame_time = d.getTime();
@@ -81,11 +82,11 @@ function init(){(function gorobots(my){
 
         connection.onclose = function(){
             my.id = null;
+            my.state = null;
 
             if (my.connection_retry > 0){
                 // Retry every few seconds
                 console.log("Lost Connection: " + server);
-                console.log(my);
                 setTimeout(function(){
                     my.websocket = my.connect(my.server);
                 }, my.connection_retry);
@@ -104,37 +105,58 @@ function init(){(function gorobots(my){
             my.last_frame_time = time;
 
             // console.log(e.data);
+            // console.log(my.state);
             new_data = JSON.parse(e.data);
 
-            // new_data.type is the convention we use to route writes to our
-            // websocket
-            if (new_data.type == "handshake") {
-                // This is the handshake response, we've been assigned an ID
-                // and are in the game (or TODO: in a lobby).
-                console.log("setting up game");
-                if('success' in new_data) {
-                    console.log(new_data['success']);
-                    if (!new_data.success){
-                        alert("invalid config!!");
-                        return false;
+            if (my.state == null) {
+                console.log("initial response");
+                if (new_data.type == "idreq") {
+                    if (my.send_client_id()) {
+                        my.state = "gameparam";
+                    } else {
+                        my.state = null;
                     }
                 }
-                if ('id' in new_data){
-                    my.id = new_data['id'];
-                    console.log("Assigned ID " + my.id + " by server");
+            } else if (my.state == "gameparam"){
+                if (new_data.type == "gameparam") {
+                    // > [OK | FULL | NOT AUTH], board size, game params
+                    if (my.parse_game_params(new_data)) {
+                        my.state = "handshake";
+                    }
                     my.setup_robot();
-                } else {
-                    console.log("server failed to send us an id")
                 }
-            } else if (new_data.type == "boardstate") {
-                my.process_packet(new_data);
+            } else if (my.state == "handshake") {
+                my.ctx.canvas.width = my.width;
+                my.ctx.canvas.height = my.height;
+                my.state = "play";
+            } else if(my.state == "play") {
+                if (new_data.type == "handshake") {
+                    // This is the handshake response, we've been assigned an ID
+                    // and are in the game (or TODO: in a lobby).
+                    console.log("setting up game");
+                    if('success' in new_data) {
+                        console.log(new_data['success']);
+                        if (!new_data.success){
+                            alert("invalid config!!");
+                            return false;
+                        }
+                    }
+                    if ('id' in new_data){
+                        my.id = new_data['id'];
+                        console.log("Assigned ID " + my.id + " by server");
+                    } else {
+                        console.log("server failed to send us an id")
+                    }
+                } else if (new_data.type == "boardstate") {
+                    my.process_gameplay_packet(new_data);
+                }
             }
         };
 
         return connection;
     };
 
-    my.process_packet = function(new_data){
+    my.process_gameplay_packet = function(new_data){
         var players = "";
 
         if (new_data.reset){
@@ -159,7 +181,7 @@ function init(){(function gorobots(my){
 
         my.ctx.save();
         my.ctx.beginPath();
-        my.ctx.rect(0,my.y_base,my.width,my.height);
+        my.ctx.rect(0, my.y_base, my.width, my.height);
         my.ctx.clip();
 
         // Update and Draw the Robots
@@ -328,22 +350,43 @@ function init(){(function gorobots(my){
         return rc.call(this);
     };
 
+    my.send_client_id = function() {
+        client_id = {
+            "type": "robot",
+            "name": "dummy",
+            "id": "24601",
+            "useragent": "gorobots.js",
+        };
+        var sent_ok = my.websocket.send(JSON.stringify(client_id));
+        if (sent_ok) {
+            console.log("sent clientid: " + JSON.stringify(client_id));
+        } else {
+            console.log("error sending clientid to server");
+        }
+        return sent_ok;
+    };
+
+    my.parse_game_params = function(params) {
+        // TODO: flesh out validation?
+        my.width = new_data.boardsize.width;
+        my.height = new_data.boardsize.height;
+        return true;
+    }
+
     my.setup_robot = function(){
         var robot = my.get_robot_code();
-        console.log(robot);
         if ('setup' in robot){
             var map = {"width": my.width, "height": my.height};
             var config = {
                 "stats": robot.setup(map),
                 "id": my.id
             };
-            console.log(config);
+            // console.log(config);
             var sent_ok = my.websocket.send(JSON.stringify(config));
-            if (true){
-                if (sent_ok)
-                    console.log("SENT CONFIG: " + JSON.stringify(config));
-                else
-                    console.log("ERROR SENDING CONFIG TO SERVER");
+            if (sent_ok) {
+                console.log("SENT CONFIG: " + JSON.stringify(config));
+            } else {
+                console.log("ERROR SENDING CONFIG TO SERVER");
             }
         }
     };

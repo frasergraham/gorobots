@@ -20,7 +20,7 @@ type ClientID struct {
 }
 
 func (c *ClientID) Valid() (bool, string) {
-	switch c.Useragent {
+	switch c.Type {
 	case "robot", "spectator":
 		return true, ""
 	}
