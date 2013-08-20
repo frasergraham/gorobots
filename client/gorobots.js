@@ -1,8 +1,7 @@
 function init(){(function gorobots(my){
     my.width = null;
     my.height = null;
-    my.server = "ws://twisted.local:8666/ws/";
-    // my.server = "ws://rs.mcquay.me:8666/ws/";
+    my.server = "ws://hackerbots.us:8666/ws/";
     my.websocket = null;
     my.id = null;
     my.ctx = null;
