@@ -2,21 +2,22 @@ package protocol
 
 // > identify
 type IdRequest struct {
-	Type string `json:"type"`
+	Type       string `json:"type"`
+	AssignedID string `json:"id"`
 }
 
-func NewIdRequest() *IdRequest {
+func NewIdRequest(id string) *IdRequest {
 	return &IdRequest{
-		Type: "idreq",
+		Type:       "idreq",
+		AssignedID: id,
 	}
 }
 
 // < [robot | spectator], name, client-type, game ID
 type ClientID struct {
-	Type        string `json:"type"`
-	Name        string `json:"name"`
-	RequestedID string `json:"id"`
-	Useragent   string `json:"useragent"`
+	Type      string `json:"type"`
+	Name      string `json:"name"`
+	Useragent string `json:"useragent"`
 }
 
 func (c *ClientID) Valid() (bool, string) {

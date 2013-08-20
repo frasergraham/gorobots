@@ -111,6 +111,12 @@ function init(){(function gorobots(my){
             if (my.state == null) {
                 console.log("initial response");
                 if (new_data.type == "idreq") {
+                    if ('id' in new_data){
+                        my.id = new_data['id'];
+                        console.log("Assigned ID " + my.id + " by server");
+                    } else {
+                        console.log("server failed to send us an id")
+                    }
                     if (my.send_client_id()) {
                         my.state = "gameparam";
                     } else {
@@ -140,12 +146,6 @@ function init(){(function gorobots(my){
                             alert("invalid config!!");
                             return false;
                         }
-                    }
-                    if ('id' in new_data){
-                        my.id = new_data['id'];
-                        console.log("Assigned ID " + my.id + " by server");
-                    } else {
-                        console.log("server failed to send us an id")
                     }
                 } else if (new_data.type == "boardstate") {
                     my.process_gameplay_packet(new_data);

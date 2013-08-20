@@ -108,7 +108,6 @@ func (g *game) run() {
 				log.Printf("Turn Processes %v\n", t1.Sub(t0))
 			}
 
-            log.Printf("%+v\n", payload)
 			for p := range g.players {
 				p.send <- payload
 			}

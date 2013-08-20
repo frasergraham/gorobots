@@ -52,7 +52,7 @@ func addPlayer(ws *websocket.Conn) {
 	id := fmt.Sprintf("robot%d", <-g.id)
 	log.Printf("sending robot id: %s", id)
 
-	err = websocket.JSON.Send(ws, protocol.NewIdRequest())
+	err = websocket.JSON.Send(ws, protocol.NewIdRequest(id))
 	if err != nil {
 		log.Printf("%s: problem sending initial identification", id)
 		websocket.JSON.Send(ws, protocol.NewFailure("generic server error"))

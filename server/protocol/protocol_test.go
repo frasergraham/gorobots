@@ -32,7 +32,7 @@ func TestClientIDs(t *testing.T) {
 
 func TestClientIDParse(t *testing.T) {
 	var s ClientID
-    err := json.Unmarshal(
+	err := json.Unmarshal(
 		[]byte(`{
             "type": "robot",
             "name": "dummy",
@@ -40,6 +40,6 @@ func TestClientIDParse(t *testing.T) {
             "useragent": "gorobots.js"
         }`), &s)
 	if err != nil {
-        t.Errorf("fail to parse: %v", err)
+		t.Errorf("fail to parse: %v", err)
 	}
 }
