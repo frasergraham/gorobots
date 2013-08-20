@@ -1,0 +1,90 @@
+<!doctype html>
+
+<html>
+    <head>
+        <style type="text/css" media="screen">
+            body { font-family: Helvetica, Sans-Serif; }
+            canvas {
+                border: 3px solid black;
+                float: right;
+                width: 58%;
+                height: 100%;
+            }
+
+            .ace_editor {
+                position: relative !important;
+                border: 1px solid lightgray;
+                margin: auto;
+                float: left;
+                height: 550px;
+                width: 40%;
+            }
+
+        </style>
+        <script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+        <script type="text/javascript" src="gorobots3d.js"></script>
+        <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    </head>
+    <body>
+  </head>
+  <body id='body' onload="init(true);">
+    <pre id="editor">function robot(){
+    var setup = function(map){
+        return {
+            "hp": 100,
+            "speed": 100,
+            "weapon_radius": 35,
+            "scanner_radius": 250
+        }
+    }
+
+    var update = function(data, map){
+        //console.log(data, map);
+        var instructions = {};
+        var x,y;
+        if (data && 'move_to' in data){
+            x = data.move_to.x;
+            y = data.move_to.y;
+
+            if (Math.abs(data.position.x - data.move_to.x) < 3 &&
+                Math.abs(data.position.y - data.move_to.y) < 3){
+                x = Math.floor(Math.random() * map.width);
+                y = Math.floor(Math.random() * map.height);
+                instructions.move_to = {"x": x, "y": y};
+                instructions.fire_at = {"x": Math.floor(Math.random() * map.width), "y": Math.floor(Math.random() * map.height)};
+            }
+            else{
+                instructions.move_to = {"x": x, "y": y};
+            }
+        }
+        else{
+            x = Math.floor(Math.random() * map.width);
+            y = Math.floor(Math.random() * map.height);
+            instructions.move_to = {"x": x, "y": y};
+        }
+
+        if (data.scanners.length > 0){
+            instructions.fire_at = data.scanners[0].position;
+        }
+        else{
+            instructions.fire_at = {"x": Math.floor(Math.random() * map.width), "y": Math.floor(Math.random() * map.height)};
+        }
+        return instructions;
+    }
+
+    return {
+        "update": update,
+        "setup": setup,
+    }
+}
+    </pre>
+
+    <canvas id="battlefield" width="800px" height="400px"></canvas>
+    <div style="clear:both"></div>
+    <a href="#" id='debug_toggle'>Toggle Debug</a>
+    <a href="#" id='fov_toggle'>Toggle FOV</a>
+    <pre id="players"></pre>
+    <div id="output"></div>
+    <div id="config"><form id="form"><input size='100' id='server'></form></div>
+  </body>
+</html>

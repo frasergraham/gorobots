@@ -27,7 +27,7 @@
     <body>
   </head>
   <body id='body'>
-    <canvas id="battlefield" width="1200px" height="900px"></canvas>
+    <canvas id="battlefield" width="800px" height="200px"></canvas>
     <div style="clear:both"></div>
     <a href="#" id='debug_toggle'>Toggle Debug</a>
     <pre id="players"></pre>
@@ -35,36 +35,32 @@
     <div id="config"><form id="form"><input size='100' id='server'></form></div>
         <script>
         var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        var camera = new THREE.OrthographicCamera( 0, 800, 0, 200, 0.1, 1000 );
 
         var canvas = document.getElementById('battlefield');
         var renderer = new THREE.WebGLRenderer({"canvas": canvas});
 
 
-        var geometry = new THREE.CubeGeometry(1,1,1);
+        var geometry = new THREE.CubeGeometry(30,30,30);
         var material = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
         var cube = new THREE.Mesh( geometry, material );
+        cube.position.x = 100;
+        // cube.position.z = 1;
+        cube.position.y = 100;
         scene.add( cube );
 
         camera.position.z = 15;
         // create a point light
-        var pointLight =
-          new THREE.PointLight(0xFFFFFF);
-
-        // set its position
-        pointLight.position.x = 10;
-        pointLight.position.y = 50;
-        pointLight.position.z = 130;
-
-        // add to the scene
-        scene.add(pointLight);
+        var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+        directionalLight.position.set( 0, 0, -1 );
+        scene.add( directionalLight );
 
         function render() {
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
+            // cube.rotation.x += 0.01;
+            // cube.rotation.y += 0.01;
             // cube.position.y += 0.01;
-            // cube.position.z += 0.01;
-            // cube.position.x += 0.01;
+            cube.rotation.z += 0.01;
+            // cube.position.x += 1;
 
             requestAnimationFrame(render);
             renderer.render(scene, camera);
