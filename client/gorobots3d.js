@@ -260,7 +260,7 @@ function init(use_webgl){(function gorobots(my){
                 }
 
                 // Update my the robot for this client
-                if (robots[i]['id'] == my.id)
+                if (robots[i]['id'] === my.id){
                     my.update_robot(robots[i], i);
                     var pos = new THREE.Vector3(robots[i].position.x, robots[i].position.y, 0);
                     var move_to = new THREE.Vector3(robots[i].move_to.x, robots[i].move_to.y, 0);
@@ -268,15 +268,12 @@ function init(use_webgl){(function gorobots(my){
                     delta.sub(pos).normalize().negate();
                     var cam = pos.clone();
                     cam.add(delta.multiplyScalar(100));
-                    // var cam = pos.sub(move_to).normalize().multiplyScalar(30);
-                    // console.log("POSITION", pos);
-                    // console.log("MOVE_TO", move_to);
-                    // console.log("CAM", cam);
                     my.followcamera.position = cam;
                     my.followcamera.position.z = 100;
                     my.followcamera.up = new THREE.Vector3(0,0,1);
                     my.followcamera.lookAt(pos);
                     my.followcamera.updateProjectionMatrix();
+                }
             }
         }
 
